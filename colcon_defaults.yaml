@@ -1,0 +1,13 @@
+build:
+  symlink-install: true
+  cmake-args:
+    - -DCMAKE_BUILD_TYPE=RelWithDebInfo
+    - -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+  parallel-workers: 1
+  event-handlers:
+    - console_cohesion+
+
+test:
+  return-code-on-test-failure: true
+  event-handlers:
+    - console_direct+
