@@ -3,6 +3,8 @@ from pathlib import Path
 import launch
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.conditions import IfCondition, UnlessCondition
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import PythonExpression
 
 import launch_ros
 from launch_ros.actions import Node
@@ -37,7 +39,8 @@ def generate_launch_description():
         package='joint_state_publisher',
         executable='joint_state_publisher',
         name='joint_state_publisher',
-        condition=UnlessCondition(LaunchConfiguration('gui')),
+        # Only for pure visualization: no GUI and no ros2_control (sim provides /joint_states via broadcaster)
+        condition=UnlessCondition(PythonExpression(['"', LaunchConfiguration('gui'), '" == "True" or "', use_ros2_control, '" == "true"'])),
         parameters=[{
             'use_sim_time': use_sim_time,
         }],
@@ -46,7 +49,7 @@ def generate_launch_description():
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
         name='joint_state_publisher_gui',
-        condition=IfCondition(LaunchConfiguration('gui')),
+        condition=IfCondition(PythonExpression(['"', LaunchConfiguration('gui'), '" == "True" and "', use_ros2_control, '" != "true"'])),
         parameters=[{
             'use_sim_time': use_sim_time,
         }],

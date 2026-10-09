@@ -12,6 +12,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
     pkg_share = Path(launch_ros.substitutions.FindPackageShare(package='lexium_cobot_l18s').find('lexium_cobot_l18s'))
     default_model_path = pkg_share / 'urdf/Lexium_Cobot_L18S002_wrapper.urdf.xacro'
+    default_controllers_file = pkg_share / 'config/Lexium_Cobot_L18S002_controllers.yaml'
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_sim_time_launch_arg = DeclareLaunchArgument('use_sim_time', default_value='true')
@@ -26,7 +27,9 @@ def generate_launch_description():
         'xacro ',
         LaunchConfiguration('model'),
         ' use_ros2_control:=',  # space at start is required for argument
-        use_ros2_control
+        use_ros2_control,
+        ' controllers_file:=',
+        LaunchConfiguration('controllers_file'),
     ]) 
 
     robot_state_publisher_node = launch_ros.actions.Node(
@@ -46,6 +49,11 @@ def generate_launch_description():
             name='model',
             default_value=str(default_model_path),
             description="Absolute path to the robot's lexium_cobot_l18s file",
+        ),
+        launch.actions.DeclareLaunchArgument(
+            name='controllers_file',
+            default_value=str(default_controllers_file),
+            description='Absolute path to ros2_control controllers yaml',
         ),
         use_sim_time_launch_arg,
         use_ros2_control_arg,

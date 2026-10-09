@@ -8,6 +8,8 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.actions import ExecuteProcess
 from launch.actions import IncludeLaunchDescription
+from launch.actions import RegisterEventHandler
+from launch.actions import TimerAction
 from launch.conditions import IfCondition
 from launch.conditions import UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -47,7 +49,7 @@ def generate_launch_description():
     use_ros2_control = LaunchConfiguration('use_ros2_control')
     use_ros2_control_arg = DeclareLaunchArgument(
         'use_ros2_control',
-        default_value='false',
+        default_value='true',
         description='Include ros2_control configuration in lexium_cobot_l18s'
     )
 
@@ -71,17 +73,46 @@ def generate_launch_description():
     )
 
     # Spawn
+    # NOTE: z was 1.0 -> robot fell 1m and collapsed. Base sits on ground, spawn just above it.
     spawn = Node(
             package='ros_gz_sim',
             executable='create',
             arguments=[
                 '-name', 'Lexium_Cobot_L18S002',
-                '-x', '1.2',
-                '-z', '1.0',
-                '-Y', '3.4',
+                '-x', '0.0',
+                '-z', '0.05',
+                '-Y', '0.0',
                 '-topic', '/robot_description',
             ],
             output='screen',
+    )
+
+    # ros2_control controller spawners (only meaningful when use_ros2_control=true).
+    # gz_ros2_control creates the controller_manager inside Gazebo; spawners activate
+    # joint_state_broadcaster (publishes /joint_states) and arm_controller (holds position).
+    # Without these the arm is unpowered and collapses under gravity.
+    joint_state_broadcaster_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+        output='screen',
+        condition=IfCondition(use_ros2_control),
+    )
+    arm_controller_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['arm_controller', '--controller-manager', '/controller_manager'],
+        output='screen',
+        condition=IfCondition(use_ros2_control),
+    )
+    # Delay spawners until Gazebo + spawn have had time to bring up controller_manager.
+    delayed_joint_state_broadcaster = TimerAction(
+        period=5.0,
+        actions=[joint_state_broadcaster_spawner],
+    )
+    delayed_arm_controller = TimerAction(
+        period=7.0,
+        actions=[arm_controller_spawner],
     )
 
     use_sim_time = LaunchConfiguration('use_sim_time')
@@ -179,6 +210,8 @@ def generate_launch_description():
         rviz,
         gazebo,
         spawn,
+        delayed_joint_state_broadcaster,
+        delayed_arm_controller,
         gz_bridge_parameter,
         (gz_bridge_camera if [] else gz_bridge_camera_dummy),
         offboard_control,

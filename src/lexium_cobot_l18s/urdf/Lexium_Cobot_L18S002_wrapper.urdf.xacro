@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="Lexium_Cobot_L18S002">
+    <xacro:arg name="use_ros2_control" default="false"/>
+    <xacro:arg name="controllers_file" default=""/>
     <xacro:include filename="Lexium_Cobot_L18S002.urdf"/>
     <xacro:include filename="Lexium_Cobot_L18S002_sensors.urdf.xacro"/>
+    <xacro:include filename="Lexium_Cobot_L18S002_ros2_control.urdf.xacro"/>
+    <xacro:if value="$(arg use_ros2_control)">
+      <xacro:lexium_ros2_control controllers_file="$(arg controllers_file)"/>
+    </xacro:if>
 </robot>
