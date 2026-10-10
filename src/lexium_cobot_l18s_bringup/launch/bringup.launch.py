@@ -1,6 +1,7 @@
 import os
 import subprocess
 import re
+import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
@@ -20,6 +21,7 @@ def launch_setup(context, *args, **kwargs):
     # Retrieve launch configurations
     mode = LaunchConfiguration("mode").perform(context).lower()
     use_moveit_str = LaunchConfiguration("use_moveit").perform(context).lower()
+    use_servo_str = LaunchConfiguration("use_servo").perform(context).lower()
     use_rviz_str = LaunchConfiguration("use_rviz").perform(context).lower()
     rviz_config_custom = LaunchConfiguration("rviz_config").perform(context)
     controllers_file_custom = LaunchConfiguration("controllers_file").perform(context)
@@ -27,6 +29,7 @@ def launch_setup(context, *args, **kwargs):
     gui_config_custom = LaunchConfiguration("gui_config").perform(context)
 
     use_moveit = use_moveit_str in ["true", "1", "yes"]
+    use_servo = use_servo_str in ["true", "1", "yes"]
     use_rviz = use_rviz_str in ["true", "1", "yes"]
     is_sim = mode in ["sim", "gazebo", "simulation"]
     is_mock = mode in ["mock", "fake"]
@@ -205,7 +208,37 @@ def launch_setup(context, *args, **kwargs):
         move_group_delay = 8.0 if is_sim else 3.0
         actions.append(TimerAction(period=move_group_delay, actions=[move_group_node]))
 
-    # 5. RViz2
+    # 5. MoveIt Servo (Real-Time Control)
+    if use_servo:
+        servo_yaml_path = os.path.join(moveit_pkg, "config", "servo.yaml")
+        try:
+            with open(servo_yaml_path, "r") as f:
+                servo_yaml = yaml.safe_load(f)
+            servo_params = {
+                "moveit_servo": servo_yaml.get("moveit_servo", {}),
+                "update_period": servo_yaml.get("update_period", 0.01),
+            }
+        except Exception as e:
+            servo_params = {}
+
+        servo_node = Node(
+            package="moveit_servo",
+            executable="servo_node",
+            name="servo_node",
+            output="screen",
+            parameters=[
+                servo_params,
+                moveit_config.robot_description,
+                moveit_config.robot_description_semantic,
+                moveit_config.robot_description_kinematics,
+                moveit_config.joint_limits,
+                {"use_sim_time": use_sim_time},
+            ],
+        )
+        servo_delay = 8.5 if is_sim else 3.5
+        actions.append(TimerAction(period=servo_delay, actions=[servo_node]))
+
+    # 6. RViz2
     if use_rviz:
         rviz_parameters = [
             moveit_config.robot_description,
@@ -243,6 +276,11 @@ def generate_launch_description():
             "use_moveit",
             default_value="true",
             description="Whether to launch MoveIt 2 MoveGroup planning node.",
+        ),
+        DeclareLaunchArgument(
+            "use_servo",
+            default_value="false",
+            description="Whether to launch MoveIt 2 Servo real-time streaming node.",
         ),
         DeclareLaunchArgument(
             "use_rviz",

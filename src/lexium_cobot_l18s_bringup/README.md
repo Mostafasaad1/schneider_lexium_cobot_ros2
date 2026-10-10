@@ -36,6 +36,7 @@ lexium_cobot_l18s_bringup/
 | :--- | :--- | :--- | :--- |
 | `mode` | `mock` | `mock`, `sim`, `real` | Selects the hardware execution backend. |
 | `use_moveit` | `true` | `true`, `false` | Launches the MoveIt 2 `move_group` planning node. |
+| `use_servo` | `false` | `true`, `false` | Launches the MoveIt 2 Servo real-time streaming node. |
 | `use_rviz` | `true` | `true`, `false` | Launches RViz2 with appropriate displays and configuration. |
 | `rviz_config` | `""` (auto) | File path | Custom `.rviz` configuration path (auto-selects MoveIt or URDF view). |
 | `controllers_file`| `""` (auto) | File path | Custom `ros2_control` controllers YAML configuration file. |
@@ -55,32 +56,36 @@ ros2 launch lexium_cobot_l18s_bringup bringup.launch.py mode:=mock
 # Gazebo Harmonic Simulation with MoveIt 2 and RViz
 ros2 launch lexium_cobot_l18s_bringup bringup.launch.py mode:=sim
 
-# Physical Hardware with MoveIt 2 and RViz
-ros2 launch lexium_cobot_l18s_bringup bringup.launch.py mode:=real
-
-# Headless / Background (without RViz)
-ros2 launch lexium_cobot_l18s_bringup bringup.launch.py mode:=sim use_rviz:=false
+# Real-Time MoveIt Servo Streaming
+ros2 launch lexium_cobot_l18s_bringup servo.launch.py mode:=mock
 ```
 
-### 2. Convenience Launch Shortcuts
+### 2. Interactive Keyboard Teleoperation
+
+To teleoperate the robot arm in real time using the interactive keyboard interface:
 
 ```bash
-# Quick Mock Launch
-ros2 launch lexium_cobot_l18s_bringup mock.launch.py
+# In Terminal 1: Launch simulation + MoveIt + Servo
+ros2 launch lexium_cobot_l18s_bringup servo.launch.py mode:=mock
 
-# Quick Gazebo Simulation Launch
-ros2 launch lexium_cobot_l18s_bringup sim.launch.py
-
-# Quick Real Hardware Launch
-ros2 launch lexium_cobot_l18s_bringup real.launch.py
+# In Terminal 2: Run interactive teleoperation
+ros2 run lexium_cobot_l18s_bringup teleop_keyboard.py
 ```
+
+Keyboard teleop controls:
+- Press `1` for **Joint Jog Mode**: `q/a`, `w/s`, `e/d`, `r/f`, `t/g`, `y/h` jog joints 1 through 6.
+- Press `2` for **Cartesian Mode**: `Arrow Keys` (X/Y translation), `PageUp/PageDown` (Z translation).
+- `+` / `-`: Increase / decrease velocity.
+- `Space`: Instant halt.
 
 ---
 
 ## Verified Topics & Interfaces
 
 - `/joint_states` (`sensor_msgs/msg/JointState`): Published at 50 Hz by `joint_state_broadcaster`.
-- `/arm_controller/joint_trajectory` (`trajectory_msgs/msg/JointTrajectory`): Commanded by MoveIt 2.
+- `/arm_controller/joint_trajectory` (`trajectory_msgs/msg/JointTrajectory`): Commanded by MoveIt 2 and Servo.
 - `/arm_controller/follow_joint_trajectory` (`control_msgs/action/FollowJointTrajectory`): Execution action server.
 - `/move_action` (`moveit_msgs/action/MoveGroup`): MoveIt 2 programmatic motion planning action server.
-- `/planning_scene` (`moveit_msgs/msg/PlanningScene`): Monitored environment and collision models.
+- `/servo_node/delta_joint_cmds` (`control_msgs/msg/JointJog`): Real-time joint velocity streaming.
+- `/servo_node/delta_twist_cmds` (`geometry_msgs/msg/TwistStamped`): Real-time 3D Cartesian velocity streaming.
+- `/servo_node/switch_command_type` (`moveit_msgs/srv/ServoCommandType`): Mode switcher (`0=JOINT_JOG`, `1=TWIST`).

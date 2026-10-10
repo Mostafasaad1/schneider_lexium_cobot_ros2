@@ -1,0 +1,27 @@
+# Gamepad / Joystick mapping for Lexium Cobot L18S MoveIt Servo
+teleop_twist_joy_node:
+  ros__parameters:
+    axis_linear:
+      x: 1   # Left stick vertical
+      y: 0   # Left stick horizontal
+      z: 4   # Right stick vertical
+    scale_linear:
+      x: 0.2
+      y: 0.2
+      z: 0.2
+    scale_linear_turbo:
+      x: 0.5
+      y: 0.5
+      z: 0.5
+
+    axis_angular:
+      yaw: 3   # Right stick horizontal
+      pitch: 7 # D-pad vertical
+      roll: 6  # D-pad horizontal
+    scale_angular:
+      yaw: 0.5
+      pitch: 0.5
+      roll: 0.5
+
+    enable_button: 4        # LB (Left Bumper) - Hold to move
+    enable_turbo_button: 5  # RB (Right Bumper) - Hold for high speed
