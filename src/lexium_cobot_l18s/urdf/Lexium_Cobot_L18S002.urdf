@@ -18,8 +18,8 @@
     </collision>
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="5.0"/>
-      <inertia ixx="0.05" ixy="0.0" ixz="0.0" iyy="0.05" iyz="0.0" izz="0.05"/>
+      <mass value="7.5"/>
+      <inertia ixx="0.04" ixy="0.0" ixz="0.0" iyy="0.04" iyz="0.0" izz="0.05"/>
     </inertial>
   </link>
   <link name="l_Link_012">
@@ -38,8 +38,8 @@
     </collision>
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="2.0"/>
-      <inertia ixx="0.02" ixy="0.0" ixz="0.0" iyy="0.02" iyz="0.0" izz="0.02"/>
+      <mass value="8.5"/>
+      <inertia ixx="0.05" ixy="0.0" ixz="0.0" iyy="0.05" iyz="0.0" izz="0.04"/>
     </inertial>
   </link>
   <link name="l_Link_013">
@@ -58,8 +58,8 @@
     </collision>
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="2.0"/>
-      <inertia ixx="0.02" ixy="0.0" ixz="0.0" iyy="0.02" iyz="0.0" izz="0.02"/>
+      <mass value="10.5"/>
+      <inertia ixx="0.12" ixy="0.0" ixz="0.0" iyy="0.12" iyz="0.0" izz="0.03"/>
     </inertial>
   </link>
   <link name="l_Link_014">
@@ -78,8 +78,8 @@
     </collision>
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="1.5"/>
-      <inertia ixx="0.015" ixy="0.0" ixz="0.0" iyy="0.015" iyz="0.0" izz="0.015"/>
+      <mass value="4.5"/>
+      <inertia ixx="0.04" ixy="0.0" ixz="0.0" iyy="0.04" iyz="0.0" izz="0.015"/>
     </inertial>
   </link>
   <link name="l_Link_015">
@@ -98,8 +98,8 @@
     </collision>
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="1.0"/>
-      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+      <mass value="2.0"/>
+      <inertia ixx="0.015" ixy="0.0" ixz="0.0" iyy="0.015" iyz="0.0" izz="0.01"/>
     </inertial>
   </link>
   <link name="l_Link_016">
@@ -118,8 +118,8 @@
     </collision>
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="0.8"/>
-      <inertia ixx="0.008" ixy="0.0" ixz="0.0" iyy="0.008" iyz="0.0" izz="0.008"/>
+      <mass value="1.2"/>
+      <inertia ixx="0.008" ixy="0.0" ixz="0.0" iyy="0.008" iyz="0.0" izz="0.006"/>
     </inertial>
   </link>
   <link name="l_Link_017">
@@ -138,8 +138,8 @@
     </collision>
     <inertial>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-      <mass value="0.5"/>
-      <inertia ixx="0.005" ixy="0.0" ixz="0.0" iyy="0.005" iyz="0.0" izz="0.005"/>
+      <mass value="0.8"/>
+      <inertia ixx="0.003" ixy="0.0" ixz="0.0" iyy="0.003" iyz="0.0" izz="0.004"/>
     </inertial>
   </link>
   <!-- Virtual fixed attachment to world: bolts the free-floating base down so gravity can't drop the whole arm. Invisible, no geometry. -->
@@ -149,53 +149,58 @@
     <child link="l_Base_Link002"/>
     <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
   </joint>
-  <!-- JTC reads effort+velocity limits from URDF on_init; missing <limit> segfaults at 0x18. continuous joints: no position bounds, but effort/velocity are mandatory. -->
+  <!-- Joint 1: Range ±360 deg, Max speed 120 deg/s (2.0944 rad/s) -->
   <joint name="l_Base_Link002__to__l_Link_012" type="continuous">
     <parent link="l_Base_Link002"/>
     <child link="l_Link_012"/>
     <origin rpy="0 0 1.5707963267948934" xyz="0.0 0.0 0.04"/>
     <axis xyz="0 0 1"/>
-    <limit effort="100.0" velocity="2.0"/>
-    <dynamics damping="0.5" friction="0.1"/>
+    <limit effort="300.0" velocity="2.0944"/>
+    <dynamics damping="1.0" friction="0.1"/>
   </joint>
-  <joint name="l_Link_012__to__l_Link_013" type="continuous">
+  <!-- Joint 2: Range -85 to +265 deg (-1.4835 to +4.6251 rad), Max speed 120 deg/s (2.0944 rad/s) -->
+  <joint name="l_Link_012__to__l_Link_013" type="revolute">
     <parent link="l_Link_012"/>
     <child link="l_Link_013"/>
     <origin rpy="1.570796326794897 0 -3.141592653589793" xyz="0.0 0.079 0.10265"/>
     <axis xyz="0 0 1"/>
-    <limit effort="80.0" velocity="2.0"/>
-    <dynamics damping="0.5" friction="0.1"/>
+    <limit effort="300.0" lower="-1.48353" upper="4.62512" velocity="2.0944"/>
+    <dynamics damping="1.0" friction="0.1"/>
   </joint>
-  <joint name="l_Link_013__to__l_Link_014" type="continuous">
+  <!-- Joint 3: Range ±175 deg (-3.0543 to +3.0543 rad), Max speed 180 deg/s (3.1416 rad/s) -->
+  <joint name="l_Link_013__to__l_Link_014" type="revolute">
     <parent link="l_Link_013"/>
     <child link="l_Link_014"/>
     <origin rpy="-3.141592653589793 0 -3.1415926535897922" xyz="0.0 0.51 0.0225"/>
     <axis xyz="0 0 1"/>
-    <limit effort="60.0" velocity="2.5"/>
-    <dynamics damping="0.4" friction="0.1"/>
+    <limit effort="150.0" lower="-3.05433" upper="3.05433" velocity="3.1416"/>
+    <dynamics damping="0.8" friction="0.1"/>
   </joint>
-  <joint name="l_Link_014__to__l_Link_015" type="continuous">
+  <!-- Joint 4: Range -85 to +265 deg (-1.4835 to +4.6251 rad), Max speed 180 deg/s (3.1416 rad/s) -->
+  <joint name="l_Link_014__to__l_Link_015" type="revolute">
     <parent link="l_Link_014"/>
     <child link="l_Link_015"/>
     <origin rpy="3.1415926535897922 0 3.1415926535897913" xyz="0.0 0.400001 -0.002"/>
     <axis xyz="0 0 1"/>
-    <limit effort="30.0" velocity="3.0"/>
-    <dynamics damping="0.3" friction="0.05"/>
+    <limit effort="80.0" lower="-1.48353" upper="4.62512" velocity="3.1416"/>
+    <dynamics damping="0.5" friction="0.05"/>
   </joint>
+  <!-- Joint 5: Range ±360 deg, Max speed 180 deg/s (3.1416 rad/s) -->
   <joint name="l_Link_015__to__l_Link_016" type="continuous">
     <parent link="l_Link_015"/>
     <child link="l_Link_016"/>
     <origin rpy="1.5707963267948963 0 -3.1415926535897927" xyz="0.0 0.0645 0.0505"/>
     <axis xyz="0 0 1"/>
-    <limit effort="15.0" velocity="3.5"/>
-    <dynamics damping="0.2" friction="0.05"/>
+    <limit effort="40.0" velocity="3.1416"/>
+    <dynamics damping="0.3" friction="0.05"/>
   </joint>
+  <!-- Joint 6: Range ±360 deg, Max speed 180 deg/s (3.1416 rad/s) -->
   <joint name="l_Link_016__to__l_Link_017" type="continuous">
     <parent link="l_Link_016"/>
     <child link="l_Link_017"/>
     <origin rpy="1.5707963267948986 1.570796326794896 0" xyz="0.0 -0.0645 0.0505"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10.0" velocity="4.0"/>
-    <dynamics damping="0.1" friction="0.02"/>
+    <limit effort="40.0" velocity="3.1416"/>
+    <dynamics damping="0.2" friction="0.02"/>
   </joint>
 </robot>
