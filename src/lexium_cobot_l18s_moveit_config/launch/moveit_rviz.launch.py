@@ -10,7 +10,11 @@ def generate_launch_description():
         MoveItConfigsBuilder(
             "Lexium_Cobot_L18S002", package_name="lexium_cobot_l18s_moveit_config"
         )
-        .planning_pipelines(pipelines=["ompl"], default_planning_pipeline="ompl")
+        .pilz_cartesian_limits(file_path="config/pilz_cartesian_limits.yaml")
+        .planning_pipelines(
+            pipelines=["ompl", "pilz_industrial_motion_planner"],
+            default_planning_pipeline="ompl",
+        )
         .to_moveit_configs()
     )
 

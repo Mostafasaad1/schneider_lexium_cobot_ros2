@@ -15,6 +15,7 @@ install(DIRECTORY launch config rviz
 install(PROGRAMS
   scripts/teleop_keyboard.py
   scripts/teleop_gui.py
+  scripts/pilz_motion_demo.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

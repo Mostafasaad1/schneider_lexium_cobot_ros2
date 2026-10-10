@@ -6,5 +6,5 @@ publish_transforms_updates: true
 
 # Planning pipelines
 planning_pipelines:
-  pipelines: [ompl]
+  pipelines: [ompl, pilz_industrial_motion_planner]
 default_planning_pipeline: ompl

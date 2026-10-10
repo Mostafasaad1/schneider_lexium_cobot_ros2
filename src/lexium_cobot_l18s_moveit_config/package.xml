@@ -14,6 +14,7 @@
   <depend>moveit_ros_visualization</depend>
   <depend>moveit_kinematics</depend>
   <depend>moveit_planners_ompl</depend>
+  <depend>pilz_industrial_motion_planner</depend>
   <depend>moveit_simple_controller_manager</depend>
   <depend>moveit_configs_utils</depend>
   <depend>robot_state_publisher</depend>

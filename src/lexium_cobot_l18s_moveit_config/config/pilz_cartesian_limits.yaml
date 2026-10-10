@@ -1,7 +1,10 @@
+# Cartesian velocity, acceleration, and deceleration limits for Pilz Industrial Motion Planner
+# Specifically tuned for Schneider Electric Lexium Cobot L18S (18kg payload)
+
 cartesian_limits:
-  max_trans_vel: 1.0
-  max_trans_acc: 2.0
-  max_trans_dec: -2.0
-  max_rot_vel: 1.57
-  max_rot_acc: 3.14
-  max_rot_dec: -3.14
+  max_trans_vel: 1.0        # m/s (Max linear translational speed)
+  max_trans_acc: 2.0        # m/s^2 (Max linear translational acceleration)
+  max_trans_dec: -2.0       # m/s^2 (Max linear translational deceleration)
+  max_rot_vel: 1.5708       # rad/s (Max rotational velocity: ~90 deg/s)
+  max_rot_acc: 3.1416       # rad/s^2 (Max rotational acceleration: ~180 deg/s^2)
+  max_rot_dec: -3.1416      # rad/s^2 (Max rotational deceleration: ~180 deg/s^2)

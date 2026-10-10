@@ -21,11 +21,17 @@ lexium_cobot_l18s_bringup/
 ├── CMakeLists.txt
 ├── package.xml
 ├── README.md
+├── scripts/
+│   ├── teleop_keyboard.py     # Interactive terminal teleoperation
+│   ├── teleop_gui.py          # Modern Cartesian Joystick GUI
+│   └── pilz_motion_demo.py     # Pilz industrial motion demo (PTP, LIN, CIRC, Blending)
 └── launch/
-    ├── bringup.launch.py   # Master unified launch file
-    ├── mock.launch.py      # Convenience shortcut for mock hardware
-    ├── sim.launch.py       # Convenience shortcut for Gazebo simulation
-    └── real.launch.py      # Convenience shortcut for real hardware
+    ├── bringup.launch.py       # Master unified launch file
+    ├── mock.launch.py          # Convenience shortcut for mock hardware
+    ├── sim.launch.py           # Convenience shortcut for Gazebo simulation
+    ├── real.launch.py          # Convenience shortcut for real hardware
+    ├── servo.launch.py         # Convenience shortcut for real-time MoveIt Servo
+    └── teleop_gui.launch.py    # Convenience shortcut for Bringup + Joystick GUI
 ```
 
 ---
@@ -60,7 +66,26 @@ ros2 launch lexium_cobot_l18s_bringup bringup.launch.py mode:=sim
 ros2 launch lexium_cobot_l18s_bringup servo.launch.py mode:=mock
 ```
 
-### 2. Interactive Keyboard Teleoperation
+### 2. Pilz Industrial Motion Planner (PTP, LIN, CIRC & Blending)
+
+The Lexium Cobot L18S is fully configured with the **Pilz Industrial Motion Planner** (`pilz_industrial_motion_planner`) pipeline alongside OMPL, loaded by default in MoveGroup.
+
+Features supported:
+- **PTP (Point-to-Point)**: Time-optimal joint-space and Cartesian-space trajectories adhering to velocity & acceleration limits.
+- **LIN (Linear Motion)**: Deterministic Cartesian straight-line trajectories with synchronized TCP translation and rotation.
+- **CIRC (Circular Motion)**: Deterministic circular arcs defined by center or interim points.
+- **MoveGroupSequenceAction & Blending**: Continuous waypoint execution with configurable blend radii (`blend_radius`, e.g., $30-50\text{ mm}$) to eliminate stopping at intermediate via-points.
+
+Run the automated validation & demo suite:
+```bash
+# In Terminal 1: Launch bringup stack
+ros2 launch lexium_cobot_l18s_bringup mock.launch.py
+
+# In Terminal 2: Run Pilz industrial motion demonstration
+ros2 run lexium_cobot_l18s_bringup pilz_motion_demo.py
+```
+
+### 3. Interactive Keyboard Teleoperation
 
 ```bash
 # In Terminal 1: Launch simulation + MoveIt + Servo
@@ -78,17 +103,12 @@ Keyboard teleop controls:
 - `+` / `-`: Increase / decrease velocity.
 - `Space`: Instant halt.
 
-### 3. Cartesian Joystick GUI Teleoperation
+### 4. Cartesian Joystick GUI Teleoperation
 
 For graphical mouse/touch teleoperation with spring-loaded analog joysticks:
 
 ```bash
-# In Terminal 1: Launch robot bringup + Servo
-ros2 launch lexium_cobot_l18s_bringup servo.launch.py mode:=mock
-
-# In Terminal 2: Run Cartesian Joystick GUI
-ros2 run lexium_cobot_l18s_bringup teleop_gui.py
-# or
+# Launch robot bringup + Servo + Cartesian Joystick GUI in one command:
 ros2 launch lexium_cobot_l18s_bringup teleop_gui.launch.py
 ```
 
@@ -108,7 +128,8 @@ GUI Features:
 - `/joint_states` (`sensor_msgs/msg/JointState`): Published at 50 Hz by `joint_state_broadcaster`.
 - `/arm_controller/joint_trajectory` (`trajectory_msgs/msg/JointTrajectory`): Commanded by MoveIt 2 and Servo.
 - `/arm_controller/follow_joint_trajectory` (`control_msgs/action/FollowJointTrajectory`): Execution action server.
-- `/move_action` (`moveit_msgs/action/MoveGroup`): MoveIt 2 programmatic motion planning action server.
+- `/move_action` (`moveit_msgs/action/MoveGroup`): MoveIt 2 programmatic motion planning action server (supporting `ompl` and `pilz_industrial_motion_planner`).
+- `/sequence_move_group` (`moveit_msgs/action/MoveGroupSequence`): Pilz industrial trajectory blending sequence action server.
 - `/servo_node/delta_joint_cmds` (`control_msgs/msg/JointJog`): Real-time joint velocity streaming.
 - `/servo_node/delta_twist_cmds` (`geometry_msgs/msg/TwistStamped`): Real-time 3D Cartesian velocity streaming.
 - `/servo_node/switch_command_type` (`moveit_msgs/srv/ServoCommandType`): Mode switcher (`0=JOINT_JOG`, `1=TWIST`).

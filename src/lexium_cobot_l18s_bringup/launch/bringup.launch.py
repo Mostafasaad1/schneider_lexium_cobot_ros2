@@ -70,7 +70,11 @@ def launch_setup(context, *args, **kwargs):
             }
         )
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
-        .planning_pipelines(pipelines=["ompl"], default_planning_pipeline="ompl")
+        .pilz_cartesian_limits(file_path="config/pilz_cartesian_limits.yaml")
+        .planning_pipelines(
+            pipelines=["ompl", "pilz_industrial_motion_planner"],
+            default_planning_pipeline="ompl",
+        )
         .to_moveit_configs()
     )
 

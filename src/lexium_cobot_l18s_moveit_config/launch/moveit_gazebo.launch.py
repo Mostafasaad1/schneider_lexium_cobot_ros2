@@ -21,7 +21,11 @@ def generate_launch_description():
                 "use_sim": "true",
             }
         )
-        .planning_pipelines(pipelines=["ompl"], default_planning_pipeline="ompl")
+        .pilz_cartesian_limits(file_path="config/pilz_cartesian_limits.yaml")
+        .planning_pipelines(
+            pipelines=["ompl", "pilz_industrial_motion_planner"],
+            default_planning_pipeline="ompl",
+        )
         .to_moveit_configs()
     )
 
