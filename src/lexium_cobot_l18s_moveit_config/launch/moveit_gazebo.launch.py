@@ -31,14 +31,14 @@ def generate_launch_description():
         "moveit.rviz",
     )
 
-    use_rviz = LaunchConfiguration("use_rviz")
-    use_rviz_arg = DeclareLaunchArgument(
-        "use_rviz",
+    rviz_arg = DeclareLaunchArgument(
+        "rviz",
         default_value="true",
-        description="Whether to launch RViz2",
+        description="Whether to launch MoveIt RViz2 interface",
     )
+    rviz_flag = LaunchConfiguration("rviz")
 
-    # Gazebo Simulation launch
+    # Gazebo Simulation launch (disable raw URDF display in gazebo.launch.py)
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             os.path.join(
@@ -62,18 +62,18 @@ def generate_launch_description():
     )
 
     delayed_move_group = TimerAction(
-        period=5.0,
+        period=3.0,
         actions=[move_group_node],
     )
 
-    # RViz2 Node
+    # RViz2 Node with MoveIt MotionPlanning interface
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        output="log",
+        output="screen",
         arguments=["-d", rviz_config_file],
-        condition=IfCondition(use_rviz),
+        condition=IfCondition(rviz_flag),
         parameters=[
             moveit_config.robot_description,
             moveit_config.robot_description_semantic,
@@ -84,14 +84,9 @@ def generate_launch_description():
         ],
     )
 
-    delayed_rviz = TimerAction(
-        period=6.0,
-        actions=[rviz_node],
-    )
-
     return LaunchDescription([
-        use_rviz_arg,
+        rviz_arg,
         gazebo_launch,
         delayed_move_group,
-        delayed_rviz,
+        rviz_node,
     ])
