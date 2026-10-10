@@ -3,9 +3,9 @@
 <package format="3">
   <name>lexium_cobot_l18s</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="TODO@todo.com">TODO</maintainer>
-  <license>TODO: License declaration</license>
+  <description>ROS 2 description and Gazebo simulation package for the Schneider Electric Lexium Cobot L18S.</description>
+  <maintainer email="mostafa.saad.1tb@gmail.com">mostafasaad1</maintainer>
+  <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
