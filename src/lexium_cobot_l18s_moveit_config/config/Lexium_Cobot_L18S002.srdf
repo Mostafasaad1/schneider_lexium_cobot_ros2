@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="Lexium_Cobot_L18S002">
+  <!-- GROUPS: Representation Of A Set Of Joints And Links -->
+  <group name="lexium_arm">
+    <chain base_link="l_Base_Link002" tip_link="l_Link_017"/>
+  </group>
+
+  <!-- GROUP STATES: Purpose: Define named poses for the group -->
+  <group_state name="home" group="lexium_arm">
+    <joint name="l_Base_Link002__to__l_Link_012" value="0.0"/>
+    <joint name="l_Link_012__to__l_Link_013" value="0.0"/>
+    <joint name="l_Link_013__to__l_Link_014" value="0.0"/>
+    <joint name="l_Link_014__to__l_Link_015" value="0.0"/>
+    <joint name="l_Link_015__to__l_Link_016" value="0.0"/>
+    <joint name="l_Link_016__to__l_Link_017" value="0.0"/>
+  </group_state>
+
+  <group_state name="ready" group="lexium_arm">
+    <joint name="l_Base_Link002__to__l_Link_012" value="0.0"/>
+    <joint name="l_Link_012__to__l_Link_013" value="-0.785398"/>
+    <joint name="l_Link_013__to__l_Link_014" value="1.570796"/>
+    <joint name="l_Link_014__to__l_Link_015" value="-0.785398"/>
+    <joint name="l_Link_015__to__l_Link_016" value="1.570796"/>
+    <joint name="l_Link_016__to__l_Link_017" value="0.0"/>
+  </group_state>
+
+  <!-- VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference -->
+  <virtual_joint name="virtual_joint" type="fixed" parent_frame="world" child_link="l_Base_Link002"/>
+
+  <!-- DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially collide with any other link. -->
+  <disable_collisions link1="l_Base_Link002" link2="l_Link_012" reason="Adjacent"/>
+  <disable_collisions link1="l_Base_Link002" link2="world" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_012" link2="l_Link_013" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_013" link2="l_Link_014" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_014" link2="l_Link_015" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_015" link2="l_Link_016" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_016" link2="l_Link_017" reason="Adjacent"/>
+  <disable_collisions link1="l_Base_Link002" link2="l_Link_013" reason="Never"/>
+  <disable_collisions link1="l_Link_012" link2="l_Link_014" reason="Never"/>
+  <disable_collisions link1="l_Link_014" link2="l_Link_016" reason="Never"/>
+  <disable_collisions link1="l_Link_014" link2="l_Link_017" reason="Never"/>
+  <disable_collisions link1="l_Link_015" link2="l_Link_017" reason="Never"/>
+</robot>

@@ -1,0 +1,18 @@
+# MoveIt2 controller configuration
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - arm_controller
+
+  arm_controller:
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: true
+    joints:
+      - l_Base_Link002__to__l_Link_012
+      - l_Link_012__to__l_Link_013
+      - l_Link_013__to__l_Link_014
+      - l_Link_014__to__l_Link_015
+      - l_Link_015__to__l_Link_016
+      - l_Link_016__to__l_Link_017

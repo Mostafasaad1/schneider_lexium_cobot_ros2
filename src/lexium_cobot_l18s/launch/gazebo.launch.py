@@ -44,8 +44,22 @@ def generate_launch_description():
             os.environ["SDF_PATH"] = gz_sim_resource_path
 
 
+    pkg_share_dir = get_package_share_directory(resources_package)
+    default_world_path = os.path.join(pkg_share_dir, 'worlds', 'empty.sdf')
+    default_gui_config = os.path.join(pkg_share_dir, 'config', 'gui.config')
+
     gazebo_world = LaunchConfiguration('gazebo_world')
-    gazebo_world_launch_arg = DeclareLaunchArgument('gazebo_world', default_value='empty.sdf')
+    gazebo_world_launch_arg = DeclareLaunchArgument(
+        'gazebo_world',
+        default_value=default_world_path,
+        description='Path to Gazebo SDF world file'
+    )
+    gui_config = LaunchConfiguration('gui_config')
+    gui_config_launch_arg = DeclareLaunchArgument(
+        'gui_config',
+        default_value=default_gui_config,
+        description='Path to Gazebo GUI config file'
+    )
     use_ros2_control = LaunchConfiguration('use_ros2_control')
     use_ros2_control_arg = DeclareLaunchArgument(
         'use_ros2_control',
@@ -69,7 +83,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py'),
         ),
-        launch_arguments=launch_arguments if world_env else dict(gz_args=['-r ', gazebo_world, ' --verbose']).items(),
+        launch_arguments=launch_arguments if world_env else dict(gz_args=['-r ', gazebo_world, ' --gui-config ', gui_config, ' --verbose']).items(),
     )
 
     # Spawn
@@ -205,6 +219,7 @@ def generate_launch_description():
         use_px4_arg,
         use_sverk_arg,
         gazebo_world_launch_arg,
+        gui_config_launch_arg,
         use_ros2_control_arg,
         robot_state_publisher,
         rviz,

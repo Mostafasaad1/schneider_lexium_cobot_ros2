@@ -1,0 +1,7 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: lexium_cobot_l18s
+    relative_path: urdf/Lexium_Cobot_L18S002_wrapper.urdf.xacro
+  srdf:
+    package: lexium_cobot_l18s_moveit_config
+    relative_path: config/Lexium_Cobot_L18S002.srdf
