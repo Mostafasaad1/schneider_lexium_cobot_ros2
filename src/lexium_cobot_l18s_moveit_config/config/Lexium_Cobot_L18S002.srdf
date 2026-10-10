@@ -2,7 +2,7 @@
 <robot name="Lexium_Cobot_L18S002">
   <!-- GROUPS: Representation Of A Set Of Joints And Links -->
   <group name="lexium_arm">
-    <chain base_link="l_Base_Link002" tip_link="l_Link_017"/>
+    <chain base_link="l_Base_Link002" tip_link="tool0"/>
   </group>
 
   <!-- GROUP STATES: Purpose: Define named poses for the group -->
@@ -35,9 +35,13 @@
   <disable_collisions link1="l_Link_014" link2="l_Link_015" reason="Adjacent"/>
   <disable_collisions link1="l_Link_015" link2="l_Link_016" reason="Adjacent"/>
   <disable_collisions link1="l_Link_016" link2="l_Link_017" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_017" link2="tool0" reason="Adjacent"/>
   <disable_collisions link1="l_Base_Link002" link2="l_Link_013" reason="Never"/>
   <disable_collisions link1="l_Link_012" link2="l_Link_014" reason="Never"/>
   <disable_collisions link1="l_Link_014" link2="l_Link_016" reason="Never"/>
   <disable_collisions link1="l_Link_014" link2="l_Link_017" reason="Never"/>
+  <disable_collisions link1="l_Link_014" link2="tool0" reason="Never"/>
   <disable_collisions link1="l_Link_015" link2="l_Link_017" reason="Never"/>
+  <disable_collisions link1="l_Link_015" link2="tool0" reason="Never"/>
+  <disable_collisions link1="l_Link_016" link2="tool0" reason="Never"/>
 </robot>
