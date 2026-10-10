@@ -22,12 +22,20 @@ def generate_launch_description():
         default_value='false',
         description='Include ros2_control configuration in lexium_cobot_l18s'
     )
+    use_mock_hardware = LaunchConfiguration('use_mock_hardware')
+    use_mock_hardware_arg = DeclareLaunchArgument(
+        'use_mock_hardware',
+        default_value='false',
+        description='Use mock hardware for ros2_control'
+    )
 
     xacro_cmd = Command([
         'xacro ',
         LaunchConfiguration('model'),
-        ' use_ros2_control:=',  # space at start is required for argument
+        ' use_ros2_control:=',
         use_ros2_control,
+        ' use_mock_hardware:=',
+        use_mock_hardware,
         ' controllers_file:=',
         LaunchConfiguration('controllers_file'),
     ]) 
@@ -57,5 +65,6 @@ def generate_launch_description():
         ),
         use_sim_time_launch_arg,
         use_ros2_control_arg,
+        use_mock_hardware_arg,
         robot_state_publisher_node,
     ])

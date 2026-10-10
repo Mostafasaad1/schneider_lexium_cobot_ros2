@@ -1,53 +1,73 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <!-- ros2_control hardware for Gazebo Sim (gz_ros2_control). Included only when use_ros2_control=true -->
-  <xacro:macro name="lexium_ros2_control" params="controllers_file use_sim:=true">
+  <!-- ros2_control configuration for Mock Hardware and Gazebo Sim (gz_ros2_control) -->
+  <xacro:macro name="lexium_ros2_control" params="controllers_file:='' use_sim:=true use_mock_hardware:=false initial_positions:=${dict()}">
     <ros2_control name="LexiumCobotSystem" type="system">
       <hardware>
-        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        <xacro:if value="${use_mock_hardware}">
+          <plugin>mock_components/GenericSystem</plugin>
+          <param name="calculate_dynamics">true</param>
+        </xacro:if>
+        <xacro:unless value="${use_mock_hardware}">
+          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </xacro:unless>
       </hardware>
       <joint name="l_Base_Link002__to__l_Link_012">
         <command_interface name="position"/>
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${initial_positions.get('l_Base_Link002__to__l_Link_012', 0.0)}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <state_interface name="effort"/>
       </joint>
       <joint name="l_Link_012__to__l_Link_013">
         <command_interface name="position"/>
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${initial_positions.get('l_Link_012__to__l_Link_013', 0.0)}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <state_interface name="effort"/>
       </joint>
       <joint name="l_Link_013__to__l_Link_014">
         <command_interface name="position"/>
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${initial_positions.get('l_Link_013__to__l_Link_014', 0.0)}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <state_interface name="effort"/>
       </joint>
       <joint name="l_Link_014__to__l_Link_015">
         <command_interface name="position"/>
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${initial_positions.get('l_Link_014__to__l_Link_015', 0.0)}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <state_interface name="effort"/>
       </joint>
       <joint name="l_Link_015__to__l_Link_016">
         <command_interface name="position"/>
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${initial_positions.get('l_Link_015__to__l_Link_016', 0.0)}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <state_interface name="effort"/>
       </joint>
       <joint name="l_Link_016__to__l_Link_017">
         <command_interface name="position"/>
-        <state_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">${initial_positions.get('l_Link_016__to__l_Link_017', 0.0)}</param>
+        </state_interface>
         <state_interface name="velocity"/>
         <state_interface name="effort"/>
       </joint>
     </ros2_control>
 
-    <gazebo>
-      <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-        <parameters>${controllers_file}</parameters>
-      </plugin>
-    </gazebo>
+    <xacro:if value="${use_sim and not use_mock_hardware}">
+      <gazebo>
+        <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+          <parameters>${controllers_file}</parameters>
+        </plugin>
+      </gazebo>
+    </xacro:if>
   </xacro:macro>
 </robot>
