@@ -4,6 +4,7 @@ moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControll
 moveit_simple_controller_manager:
   controller_names:
     - arm_controller
+    - gripper_controller
 
   arm_controller:
     action_ns: follow_joint_trajectory
@@ -16,3 +17,10 @@ moveit_simple_controller_manager:
       - l_Link_014__to__l_Link_015
       - l_Link_015__to__l_Link_016
       - l_Link_016__to__l_Link_017
+
+  gripper_controller:
+    action_ns: gripper_cmd
+    type: ParallelGripperCommand
+    default: true
+    joints:
+      - gripper_finger_left_joint

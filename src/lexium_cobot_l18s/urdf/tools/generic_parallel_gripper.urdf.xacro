@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- =================================================================== -->
+  <!-- Generic Industrial Parallel Jaw Gripper Macro                      -->
+  <!-- =================================================================== -->
+  <xacro:macro name="generic_parallel_gripper" params="parent prefix:=gripper_ *origin">
+
+    <!-- Gripper Base Plate & Body -->
+    <link name="${prefix}base_link">
+      <inertial>
+        <origin xyz="0.0 0.0 0.035" rpy="0 0 0"/>
+        <mass value="0.85"/>
+        <inertia ixx="0.0012" ixy="0.0" ixz="0.0" iyy="0.0015" iyz="0.0" izz="0.0009"/>
+      </inertial>
+      <!-- Base mounting adapter -->
+      <visual>
+        <origin xyz="0.0 0.0 0.008" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.045" length="0.016"/>
+        </geometry>
+        <material name="gripper_dark_anodized">
+          <color rgba="0.15 0.16 0.18 1.0"/>
+        </material>
+      </visual>
+      <!-- Main actuator housing -->
+      <visual>
+        <origin xyz="0.0 0.0 0.042" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.075 0.110 0.052"/>
+        </geometry>
+        <material name="gripper_slate">
+          <color rgba="0.22 0.24 0.27 1.0"/>
+        </material>
+      </visual>
+      <!-- Accent status bezel -->
+      <visual>
+        <origin xyz="0.0 0.0 0.068" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.060 0.095 0.006"/>
+        </geometry>
+        <material name="schneider_green_accent">
+          <color rgba="0.24 0.70 0.28 1.0"/>
+        </material>
+      </visual>
+      <!-- Collision geometry -->
+      <collision>
+        <origin xyz="0.0 0.0 0.036" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.080 0.115 0.072"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}base_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <parent link="${parent}"/>
+      <child link="${prefix}base_link"/>
+    </joint>
+
+    <!-- Left Finger -->
+    <link name="${prefix}finger_left">
+      <inertial>
+        <origin xyz="0.0 0.0 0.025" rpy="0 0 0"/>
+        <mass value="0.08"/>
+        <inertia ixx="0.00004" ixy="0.0" ixz="0.0" iyy="0.00004" iyz="0.0" izz="0.00001"/>
+      </inertial>
+      <!-- Guide slider -->
+      <visual>
+        <origin xyz="0.0 0.0 0.008" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.030 0.016 0.016"/>
+        </geometry>
+        <material name="finger_silver">
+          <color rgba="0.75 0.76 0.78 1.0"/>
+        </material>
+      </visual>
+      <!-- Finger body -->
+      <visual>
+        <origin xyz="0.0 0.004 0.032" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.022 0.012 0.048"/>
+        </geometry>
+        <material name="finger_silver"/>
+      </visual>
+      <!-- Polyurethane High-Grip Contact Pad -->
+      <visual>
+        <origin xyz="0.0 -0.003 0.038" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.020 0.004 0.032"/>
+        </geometry>
+        <material name="gripper_rubber_pad">
+          <color rgba="0.08 0.08 0.09 1.0"/>
+        </material>
+      </visual>
+      <!-- Collision -->
+      <collision>
+        <origin xyz="0.0 0.002 0.028" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.026 0.018 0.056"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}finger_left_joint" type="prismatic">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}finger_left"/>
+      <origin xyz="0.0 0.020 0.068" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="0.0" upper="0.040" effort="100.0" velocity="0.15"/>
+      <dynamics damping="1.0" friction="0.2"/>
+    </joint>
+
+    <!-- Right Finger -->
+    <link name="${prefix}finger_right">
+      <inertial>
+        <origin xyz="0.0 0.0 0.025" rpy="0 0 0"/>
+        <mass value="0.08"/>
+        <inertia ixx="0.00004" ixy="0.0" ixz="0.0" iyy="0.00004" iyz="0.0" izz="0.00001"/>
+      </inertial>
+      <!-- Guide slider -->
+      <visual>
+        <origin xyz="0.0 0.0 0.008" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.030 0.016 0.016"/>
+        </geometry>
+        <material name="finger_silver"/>
+      </visual>
+      <!-- Finger body -->
+      <visual>
+        <origin xyz="0.0 -0.004 0.032" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.022 0.012 0.048"/>
+        </geometry>
+        <material name="finger_silver"/>
+      </visual>
+      <!-- Polyurethane High-Grip Contact Pad -->
+      <visual>
+        <origin xyz="0.0 0.003 0.038" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.020 0.004 0.032"/>
+        </geometry>
+        <material name="gripper_rubber_pad"/>
+      </visual>
+      <!-- Collision -->
+      <collision>
+        <origin xyz="0.0 -0.002 0.028" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.026 0.018 0.056"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}finger_right_joint" type="prismatic">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}finger_right"/>
+      <origin xyz="0.0 -0.020 0.068" rpy="0 0 0"/>
+      <axis xyz="0 -1 0"/>
+      <limit lower="0.0" upper="0.040" effort="100.0" velocity="0.15"/>
+      <mimic joint="${prefix}finger_left_joint" multiplier="1.0" offset="0.0"/>
+      <dynamics damping="1.0" friction="0.2"/>
+    </joint>
+
+    <!-- Tool Center Point (TCP) / Grasp Center Frame -->
+    <link name="${prefix}tcp_link"/>
+    <joint name="${prefix}tcp_joint" type="fixed">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}tcp_link"/>
+      <origin xyz="0.0 0.0 0.120" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Gazebo Physics & Colors -->
+    <gazebo reference="${prefix}base_link">
+      <material>Gazebo/DarkGrey</material>
+    </gazebo>
+    <gazebo reference="${prefix}finger_left">
+      <material>Gazebo/Grey</material>
+      <kp>1000000.0</kp>
+      <kd>1.0</kd>
+      <mu1>1.5</mu1>
+      <mu2>1.5</mu2>
+    </gazebo>
+    <gazebo reference="${prefix}finger_right">
+      <material>Gazebo/Grey</material>
+      <kp>1000000.0</kp>
+      <kd>1.0</kd>
+      <mu1>1.5</mu1>
+      <mu2>1.5</mu2>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

@@ -8,6 +8,9 @@ controller_manager:
     arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
+    gripper_controller:
+      type: parallel_gripper_action_controller/GripperActionController
+
 arm_controller:
   ros__parameters:
     joints:
@@ -27,4 +30,9 @@ arm_controller:
     allow_partial_joints_goal: false
     allow_nonzero_velocity_at_trajectory_end: true
     interpolate_from_desired_state: true
-    open_loop_control: true
+
+gripper_controller:
+  ros__parameters:
+    joint: gripper_finger_left_joint
+    goal_tolerance: 0.005
+    action_monitor_rate: 20.0

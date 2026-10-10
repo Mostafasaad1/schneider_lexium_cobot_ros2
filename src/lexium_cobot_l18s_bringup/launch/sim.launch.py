@@ -14,8 +14,14 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz")
     gazebo_world = LaunchConfiguration("gazebo_world")
     gui_config = LaunchConfiguration("gui_config")
+    tool_type = LaunchConfiguration("tool_type")
 
     declared_arguments = [
+        DeclareLaunchArgument(
+            "tool_type",
+            default_value="none",
+            description="Tool type: 'none', 'gripper', or 'vacuum'",
+        ),
         DeclareLaunchArgument(
             "use_moveit",
             default_value="true",
@@ -42,6 +48,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(bringup_launch),
         launch_arguments={
             "mode": "sim",
+            "tool_type": tool_type,
             "use_moveit": use_moveit,
             "use_rviz": use_rviz,
             "gazebo_world": gazebo_world,

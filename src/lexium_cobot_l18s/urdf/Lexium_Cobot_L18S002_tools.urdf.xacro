@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Include Tool Library Macros -->
+  <xacro:include filename="tools/generic_parallel_gripper.urdf.xacro"/>
+  <xacro:include filename="tools/generic_vacuum_gripper.urdf.xacro"/>
+
+  <!-- Top-Level Tool Attachment Macro -->
+  <xacro:macro name="lexium_tool_attachment" params="tool_type:=none parent:=tool0">
+
+    <!-- 1. Parallel Jaw Gripper -->
+    <xacro:if value="${tool_type == 'gripper' or tool_type == 'parallel_gripper'}">
+      <xacro:generic_parallel_gripper parent="${parent}" prefix="gripper_">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </xacro:generic_parallel_gripper>
+      <!-- Aliased primary TCP link -->
+      <link name="tcp_link"/>
+      <joint name="tool_tcp_alias_joint" type="fixed">
+        <parent link="gripper_tcp_link"/>
+        <child link="tcp_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </joint>
+    </xacro:if>
+
+    <!-- 2. Vacuum Suction Cup Tool -->
+    <xacro:if value="${tool_type == 'vacuum' or tool_type == 'vacuum_gripper'}">
+      <xacro:generic_vacuum_gripper parent="${parent}" prefix="vacuum_">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </xacro:generic_vacuum_gripper>
+      <!-- Aliased primary TCP link -->
+      <link name="tcp_link"/>
+      <joint name="tool_tcp_alias_joint" type="fixed">
+        <parent link="vacuum_tcp_link"/>
+        <child link="tcp_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </joint>
+    </xacro:if>
+
+    <!-- 3. No Tool Attached (Bare Flange) -->
+    <xacro:if value="${tool_type == 'none' or tool_type == ''}">
+      <link name="tcp_link"/>
+      <joint name="tool_tcp_alias_joint" type="fixed">
+        <parent link="${parent}"/>
+        <child link="tcp_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </joint>
+    </xacro:if>
+
+  </xacro:macro>
+
+</robot>

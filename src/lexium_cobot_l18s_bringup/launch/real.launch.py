@@ -13,8 +13,14 @@ def generate_launch_description():
     use_moveit = LaunchConfiguration("use_moveit")
     use_rviz = LaunchConfiguration("use_rviz")
     controllers_file = LaunchConfiguration("controllers_file")
+    tool_type = LaunchConfiguration("tool_type")
 
     declared_arguments = [
+        DeclareLaunchArgument(
+            "tool_type",
+            default_value="none",
+            description="Tool type: 'none', 'gripper', or 'vacuum'",
+        ),
         DeclareLaunchArgument(
             "use_moveit",
             default_value="true",
@@ -36,6 +42,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(bringup_launch),
         launch_arguments={
             "mode": "real",
+            "tool_type": tool_type,
             "use_moveit": use_moveit,
             "use_rviz": use_rviz,
             "controllers_file": controllers_file,

@@ -41,6 +41,7 @@ lexium_cobot_l18s_bringup/
 | Argument | Default | Choices / Format | Description |
 | :--- | :--- | :--- | :--- |
 | `mode` | `mock` | `mock`, `sim`, `real` | Selects the hardware execution backend. |
+| `tool_type` | `none` | `none`, `gripper`, `vacuum` | Attaches end-effector tool (`gripper` for parallel jaw, `vacuum` for suction cup, `none` for bare flange). |
 | `use_moveit` | `true` | `true`, `false` | Launches the MoveIt 2 `move_group` planning node. |
 | `use_servo` | `false` | `true`, `false` | Launches the MoveIt 2 Servo real-time streaming node. |
 | `use_rviz` | `true` | `true`, `false` | Launches RViz2 with appropriate displays and configuration. |
@@ -64,9 +65,30 @@ ros2 launch lexium_cobot_l18s_bringup bringup.launch.py mode:=sim
 
 # Real-Time MoveIt Servo Streaming
 ros2 launch lexium_cobot_l18s_bringup servo.launch.py mode:=mock
+
+# Launch with Generic Parallel Jaw Gripper attached
+ros2 launch lexium_cobot_l18s_bringup mock.launch.py tool_type:=gripper
 ```
 
-### 2. Pilz Industrial Motion Planner (PTP, LIN, CIRC & Blending)
+### 2. End-Effector & Tool Framework (Parallel Gripper & Vacuum)
+
+The Lexium Cobot L18S includes a modular end-effector tool architecture:
+- **Standardized `tool0` Flange**: Standardized mechanical and kinematic interface on the wrist flange (`l_Link_017` -> `tool0` -> `tcp_link`).
+- **Parallel Jaw Gripper (`tool_type:=gripper`)**: Symmetric $40\text{ mm}$ stroke prismatic gripper with polyurethane high-grip contact pads, physics friction properties, and dynamic mimic joint transmission.
+- **Vacuum Suction Cup (`tool_type:=vacuum`)**: Industrial pneumatic suction tool with mounting manifold and elastomeric suction cup.
+- **`ros2_control` Integration**: Controlled via `parallel_gripper_action_controller/GripperActionController` providing the standard `/gripper_controller/gripper_cmd` (`control_msgs/action/ParallelGripperCommand`) interface.
+- **MoveIt 2 Integration**: `gripper` planning group with `open` ($40\text{ mm}$) and `close` ($0\text{ mm}$) named poses, end-effector binding to `lexium_arm`, and optimized collision avoidance matrix.
+
+Run the automated pick-and-place demonstration:
+```bash
+# In Terminal 1: Launch bringup stack with gripper attached
+ros2 launch lexium_cobot_l18s_bringup mock.launch.py tool_type:=gripper
+
+# In Terminal 2: Run coordinated pick-and-place sequence
+ros2 run lexium_cobot_l18s_bringup gripper_demo.py
+```
+
+### 3. Pilz Industrial Motion Planner (PTP, LIN, CIRC & Blending)
 
 The Lexium Cobot L18S is fully configured with the **Pilz Industrial Motion Planner** (`pilz_industrial_motion_planner`) pipeline alongside OMPL, loaded by default in MoveGroup.
 
@@ -85,7 +107,7 @@ ros2 launch lexium_cobot_l18s_bringup mock.launch.py
 ros2 run lexium_cobot_l18s_bringup pilz_motion_demo.py
 ```
 
-### 3. Interactive Keyboard Teleoperation
+### 4. Interactive Keyboard Teleoperation
 
 ```bash
 # In Terminal 1: Launch simulation + MoveIt + Servo
@@ -103,7 +125,7 @@ Keyboard teleop controls:
 - `+` / `-`: Increase / decrease velocity.
 - `Space`: Instant halt.
 
-### 4. Cartesian Joystick GUI Teleoperation
+### 5. Cartesian Joystick GUI Teleoperation
 
 For graphical mouse/touch teleoperation with spring-loaded analog joysticks:
 
@@ -128,6 +150,7 @@ GUI Features:
 - `/joint_states` (`sensor_msgs/msg/JointState`): Published at 50 Hz by `joint_state_broadcaster`.
 - `/arm_controller/joint_trajectory` (`trajectory_msgs/msg/JointTrajectory`): Commanded by MoveIt 2 and Servo.
 - `/arm_controller/follow_joint_trajectory` (`control_msgs/action/FollowJointTrajectory`): Execution action server.
+- `/gripper_controller/gripper_cmd` (`control_msgs/action/ParallelGripperCommand`): Gripper action server for parallel jaw actuation.
 - `/move_action` (`moveit_msgs/action/MoveGroup`): MoveIt 2 programmatic motion planning action server (supporting `ompl` and `pilz_industrial_motion_planner`).
 - `/sequence_move_group` (`moveit_msgs/action/MoveGroupSequence`): Pilz industrial trajectory blending sequence action server.
 - `/servo_node/delta_joint_cmds` (`control_msgs/msg/JointJog`): Real-time joint velocity streaming.

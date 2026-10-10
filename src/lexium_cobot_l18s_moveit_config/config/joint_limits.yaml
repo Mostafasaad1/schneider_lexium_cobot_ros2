@@ -47,4 +47,19 @@ joint_limits:
     has_position_limits: true
     min_position: -4.71239
     max_position: 4.71239
-
+  gripper_finger_left_joint:
+    has_velocity_limits: true
+    max_velocity: 0.15
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+    has_position_limits: true
+    min_position: 0.0
+    max_position: 0.040
+  gripper_finger_right_joint:
+    has_velocity_limits: true
+    max_velocity: 0.15
+    has_acceleration_limits: true
+    max_acceleration: 1.0
+    has_position_limits: true
+    min_position: 0.0
+    max_position: 0.040

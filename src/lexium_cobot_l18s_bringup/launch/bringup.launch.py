@@ -20,6 +20,7 @@ from moveit_configs_utils import MoveItConfigsBuilder
 def launch_setup(context, *args, **kwargs):
     # Retrieve launch configurations
     mode = LaunchConfiguration("mode").perform(context).lower()
+    tool_type = LaunchConfiguration("tool_type").perform(context).lower()
     use_moveit_str = LaunchConfiguration("use_moveit").perform(context).lower()
     use_servo_str = LaunchConfiguration("use_servo").perform(context).lower()
     use_rviz_str = LaunchConfiguration("use_rviz").perform(context).lower()
@@ -67,6 +68,7 @@ def launch_setup(context, *args, **kwargs):
                 "use_mock_hardware": "true" if is_mock else "false",
                 "use_sim": "true" if is_sim else "false",
                 "controllers_file": controllers_file,
+                "tool_type": tool_type,
             }
         )
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
@@ -170,8 +172,8 @@ def launch_setup(context, *args, **kwargs):
         actions.append(ros2_control_node)
 
     # 3. Controller Spawners
-    spawner_delay_jsb = 5.0 if is_sim else 1.5
-    spawner_delay_ac = 7.0 if is_sim else 2.5
+    spawner_delay_jsb = 5.0 if is_sim else 2.0
+    spawner_delay_ac = 7.0 if is_sim else 3.2
 
     jsb_spawner = Node(
         package="controller_manager",
@@ -198,6 +200,20 @@ def launch_setup(context, *args, **kwargs):
     actions.append(TimerAction(period=spawner_delay_jsb, actions=[jsb_spawner]))
     actions.append(TimerAction(period=spawner_delay_ac, actions=[ac_spawner]))
 
+    if tool_type in ["gripper", "parallel_gripper"]:
+        spawner_delay_gc = 7.5 if is_sim else 3.8
+        gc_spawner = Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=[
+                "gripper_controller",
+                "--controller-manager", "/controller_manager",
+                "--controller-manager-timeout", "30",
+            ],
+            output="screen",
+        )
+        actions.append(TimerAction(period=spawner_delay_gc, actions=[gc_spawner]))
+
     # 4. MoveGroup (MoveIt 2)
     if use_moveit:
         move_group_node = Node(
@@ -209,7 +225,7 @@ def launch_setup(context, *args, **kwargs):
                 {"use_sim_time": use_sim_time},
             ],
         )
-        move_group_delay = 8.0 if is_sim else 3.0
+        move_group_delay = 8.0 if is_sim else 4.2
         actions.append(TimerAction(period=move_group_delay, actions=[move_group_node]))
 
     # 5. MoveIt Servo (Real-Time Control)
@@ -275,6 +291,11 @@ def generate_launch_description():
             "mode",
             default_value="mock",
             description="Execution backend mode: 'mock' (offline/fake hardware), 'sim' (Gazebo Harmonic), or 'real' (physical hardware).",
+        ),
+        DeclareLaunchArgument(
+            "tool_type",
+            default_value="none",
+            description="End-effector tool attachment: 'none', 'gripper' (parallel jaw gripper), or 'vacuum' (suction gripper).",
         ),
         DeclareLaunchArgument(
             "use_moveit",

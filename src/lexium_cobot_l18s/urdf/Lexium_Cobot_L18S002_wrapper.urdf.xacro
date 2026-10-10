@@ -4,10 +4,19 @@
     <xacro:arg name="use_mock_hardware" default="false"/>
     <xacro:arg name="use_sim" default="true"/>
     <xacro:arg name="controllers_file" default=""/>
+    <xacro:arg name="tool_type" default="none"/>
+
+    <!-- Base Robot Description -->
     <xacro:include filename="Lexium_Cobot_L18S002.urdf"/>
     <xacro:include filename="Lexium_Cobot_L18S002_sensors.urdf.xacro"/>
+
+    <!-- End-Effector / Tool Framework -->
+    <xacro:include filename="Lexium_Cobot_L18S002_tools.urdf.xacro"/>
+    <xacro:lexium_tool_attachment tool_type="$(arg tool_type)" parent="tool0"/>
+
+    <!-- ros2_control Hardware Interface -->
     <xacro:include filename="Lexium_Cobot_L18S002_ros2_control.urdf.xacro"/>
     <xacro:if value="$(arg use_ros2_control)">
-      <xacro:lexium_ros2_control controllers_file="$(arg controllers_file)" use_sim="$(arg use_sim)" use_mock_hardware="$(arg use_mock_hardware)"/>
+      <xacro:lexium_ros2_control controllers_file="$(arg controllers_file)" use_sim="$(arg use_sim)" use_mock_hardware="$(arg use_mock_hardware)" tool_type="$(arg tool_type)"/>
     </xacro:if>
 </robot>

@@ -5,3 +5,5 @@ initial_positions:
   l_Link_014__to__l_Link_015: -0.785398
   l_Link_015__to__l_Link_016: 1.570796
   l_Link_016__to__l_Link_017: 0.0
+  gripper_finger_left_joint: 0.0
+  gripper_finger_right_joint: 0.0
