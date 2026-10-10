@@ -11,6 +11,7 @@ from control_msgs.msg import JointJog
 from geometry_msgs.msg import TwistStamped
 from sensor_msgs.msg import JointState
 from moveit_msgs.srv import ServoCommandType
+import os
 
 HELP_MSG = """
 ======================================================
@@ -29,9 +30,11 @@ HELP_MSG = """
     [y / h] : Joint 6 (Wrist 3) +/-
 
   Cartesian Mode (Press 2):
-    [Arrow Up / Down]    : Linear X (Forward / Backward)
-    [Arrow Left / Right] : Linear Y (Left / Right)
-    [PageUp / PageDown]  : Linear Z (Up / Down)
+    [Arrow Up / Down]         : Linear X (Forward / Backward)
+    [Arrow Left / Right]      : Linear Y (Left / Right)
+    [Shift + Up / Down]       : Linear Z (Up / Down)
+    [w / s]                   : Linear Z (Up / Down) alternative
+    [PageUp / PageDown]       : Linear Z (Up / Down) alternative
 
   Speed Control:
     [+] : Increase Speed
@@ -111,10 +114,7 @@ def get_key(settings):
     tty.setraw(sys.stdin.fileno())
     rlist, _, _ = select.select([sys.stdin], [], [], 0.05)
     if rlist:
-        key = sys.stdin.read(1)
-        if key == '\x1b':  # Escape sequence for arrow keys
-            extra = sys.stdin.read(2)
-            key += extra
+        key = os.read(sys.stdin.fileno(), 16).decode('utf-8', errors='ignore')
     else:
         key = ''
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
@@ -170,24 +170,24 @@ def main():
                 print(f"\rJogging {JOINT_NAMES[idx].split('__to__')[-1]}: {direction * node.joint_speed:+.2f} rad/s", end="", flush=True)
 
             elif node.mode == 'cartesian':
-                if key == '\x1b[A':  # Up arrow
+                if key in ['\x1b[A', '\x1bOA']:  # Up arrow
                     node.publish_twist(lx=1.0)
-                    print(f"\rCartesian +X: +{node.linear_speed:.2f} m/s", end="", flush=True)
-                elif key == '\x1b[B':  # Down arrow
+                    print(f"\rCartesian +X (Forward): +{node.linear_speed:.2f} m/s", end="", flush=True)
+                elif key in ['\x1b[B', '\x1bOB']:  # Down arrow
                     node.publish_twist(lx=-1.0)
-                    print(f"\rCartesian -X: -{node.linear_speed:.2f} m/s", end="", flush=True)
-                elif key == '\x1b[D':  # Left arrow
+                    print(f"\rCartesian -X (Backward): -{node.linear_speed:.2f} m/s", end="", flush=True)
+                elif key in ['\x1b[D', '\x1bOD']:  # Left arrow
                     node.publish_twist(ly=1.0)
-                    print(f"\rCartesian +Y: +{node.linear_speed:.2f} m/s", end="", flush=True)
-                elif key == '\x1b[C':  # Right arrow
+                    print(f"\rCartesian +Y (Left): +{node.linear_speed:.2f} m/s", end="", flush=True)
+                elif key in ['\x1b[C', '\x1bOC']:  # Right arrow
                     node.publish_twist(ly=-1.0)
-                    print(f"\rCartesian -Y: -{node.linear_speed:.2f} m/s", end="", flush=True)
-                elif key == '\x1b[5~':  # Page Up
+                    print(f"\rCartesian -Y (Right): -{node.linear_speed:.2f} m/s", end="", flush=True)
+                elif key in ['\x1b[1;2A', '\x1b[a', '\x1bO2A', 'w', 'W', '\x1b[5~']:  # Shift+Up arrow, 'w', or Page Up
                     node.publish_twist(lz=1.0)
-                    print(f"\rCartesian +Z: +{node.linear_speed:.2f} m/s", end="", flush=True)
-                elif key == '\x1b[6~':  # Page Down
+                    print(f"\rCartesian +Z (Up): +{node.linear_speed:.2f} m/s", end="", flush=True)
+                elif key in ['\x1b[1;2B', '\x1b[b', '\x1bO2B', 's', 'S', '\x1b[6~']:  # Shift+Down arrow, 's', or Page Down
                     node.publish_twist(lz=-1.0)
-                    print(f"\rCartesian -Z: -{node.linear_speed:.2f} m/s", end="", flush=True)
+                    print(f"\rCartesian -Z (Down): -{node.linear_speed:.2f} m/s", end="", flush=True)
 
     except Exception as e:
         print(f"\nError: {e}")
