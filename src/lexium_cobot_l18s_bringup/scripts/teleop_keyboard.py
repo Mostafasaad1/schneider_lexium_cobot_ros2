@@ -5,13 +5,19 @@ import sys
 import termios
 import tty
 import select
+import os
 import rclpy
 from rclpy.node import Node
+from rclpy.action import ActionClient
 from control_msgs.msg import JointJog
+from control_msgs.action import FollowJointTrajectory
+from trajectory_msgs.msg import JointTrajectoryPoint
+from builtin_interfaces.msg import Duration
 from geometry_msgs.msg import TwistStamped
 from sensor_msgs.msg import JointState
+from moveit_msgs.action import MoveGroup
+from moveit_msgs.msg import MotionPlanRequest, Constraints, JointConstraint, PlanningOptions
 from moveit_msgs.srv import ServoCommandType
-import os
 
 HELP_MSG = """
 ======================================================
@@ -20,6 +26,10 @@ HELP_MSG = """
   Mode Switching:
     [1] : Joint Jogging Mode
     [2] : Cartesian (3D Twist) Mode
+
+  Pose Presets:
+    [0] : Move to Zero / Home Position (all joints 0.0)
+    [9] : Move to Ready / Working Posture
 
   Joint Jog Mode (Press 1):
     [q / a] : Joint 1 (Base Rotation) +/-
@@ -70,6 +80,8 @@ class KeyboardTeleop(Node):
         self.joint_pub = self.create_publisher(JointJog, '/servo_node/delta_joint_cmds', 10)
         self.twist_pub = self.create_publisher(TwistStamped, '/servo_node/delta_twist_cmds', 10)
         self.switch_cli = self.create_client(ServoCommandType, '/servo_node/switch_command_type')
+        self.move_client = ActionClient(self, MoveGroup, '/move_action')
+        self.traj_client = ActionClient(self, FollowJointTrajectory, '/arm_controller/follow_joint_trajectory')
 
         self.mode = 'joint'  # 'joint' or 'cartesian'
         self.joint_speed = 0.4
@@ -108,6 +120,74 @@ class KeyboardTeleop(Node):
         msg.twist.linear.y = float(ly) * self.linear_speed
         msg.twist.linear.z = float(lz) * self.linear_speed
         self.twist_pub.publish(msg)
+
+    def move_to_joint_target(self, target_positions, pose_name="Target"):
+        print(f"\n>>> Moving to {pose_name} pose...")
+        
+        # 1. Try MoveGroup action first (with full collision-aware planning)
+        if self.move_client.wait_for_server(timeout_sec=1.0):
+            print(">>> Planning collision-aware trajectory via MoveGroup...")
+            goal_msg = MoveGroup.Goal()
+            goal_msg.request = MotionPlanRequest()
+            goal_msg.request.group_name = "lexium_arm"
+            goal_msg.request.num_planning_attempts = 5
+            goal_msg.request.allowed_planning_time = 5.0
+
+            constraints = Constraints()
+            for j_name, pos in zip(JOINT_NAMES, target_positions):
+                jc = JointConstraint()
+                jc.joint_name = j_name
+                jc.position = float(pos)
+                jc.tolerance_above = 0.01
+                jc.tolerance_below = 0.01
+                jc.weight = 1.0
+                constraints.joint_constraints.append(jc)
+
+            goal_msg.request.goal_constraints.append(constraints)
+            goal_msg.planning_options = PlanningOptions()
+            goal_msg.planning_options.plan_only = False
+
+            send_future = self.move_client.send_goal_async(goal_msg)
+            rclpy.spin_until_future_complete(self, send_future, timeout_sec=5.0)
+            goal_handle = send_future.result()
+            if goal_handle and goal_handle.accepted:
+                result_future = goal_handle.get_result_async()
+                rclpy.spin_until_future_complete(self, result_future, timeout_sec=15.0)
+                result = result_future.result().result
+                if result.error_code.val == 1:
+                    print(f">>> Successfully reached {pose_name} pose!")
+                    mode_int = ServoCommandType.Request.JOINT_JOG if self.mode == 'joint' else ServoCommandType.Request.TWIST
+                    self.switch_mode(mode_int)
+                    return True
+                else:
+                    print(f">>> MoveGroup planning failed (error code {result.error_code.val}), attempting direct controller trajectory...")
+
+        # 2. Fallback to direct FollowJointTrajectory action
+        if self.traj_client.wait_for_server(timeout_sec=2.0):
+            print(">>> Sending trajectory directly to /arm_controller/follow_joint_trajectory...")
+            traj_goal = FollowJointTrajectory.Goal()
+            traj_goal.trajectory.joint_names = JOINT_NAMES
+            pt = JointTrajectoryPoint()
+            pt.positions = [float(p) for p in target_positions]
+            pt.time_from_start = Duration(sec=4, nanosec=0)
+            traj_goal.trajectory.points.append(pt)
+
+            send_future = self.traj_client.send_goal_async(traj_goal)
+            rclpy.spin_until_future_complete(self, send_future, timeout_sec=5.0)
+            goal_handle = send_future.result()
+            if goal_handle and goal_handle.accepted:
+                result_future = goal_handle.get_result_async()
+                rclpy.spin_until_future_complete(self, result_future, timeout_sec=8.0)
+                print(f">>> Successfully reached {pose_name} pose via controller!")
+                mode_int = ServoCommandType.Request.JOINT_JOG if self.mode == 'joint' else ServoCommandType.Request.TWIST
+                self.switch_mode(mode_int)
+                return True
+            else:
+                print(">>> Trajectory goal rejected by controller.")
+                return False
+
+        print(">>> Error: Neither MoveGroup nor arm_controller action servers are reachable.")
+        return False
 
 
 def get_key(settings):
@@ -148,6 +228,10 @@ def main():
                 node.mode = 'cartesian'
                 node.switch_mode(ServoCommandType.Request.TWIST)
                 print("\n>>> Switched to [CARTESIAN TWIST] mode.")
+            elif key == '0':
+                node.move_to_joint_target([0.0, 0.0, 0.0, 0.0, 0.0, 0.0], pose_name="Zero / Home")
+            elif key == '9':
+                node.move_to_joint_target([0.0, -0.785, 1.57, -0.785, 1.57, 0.0], pose_name="Ready")
             elif key in ['+', '=']:
                 node.joint_speed = min(1.5, node.joint_speed + 0.05)
                 node.linear_speed = min(0.5, node.linear_speed + 0.02)
