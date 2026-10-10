@@ -62,21 +62,44 @@ ros2 launch lexium_cobot_l18s_bringup servo.launch.py mode:=mock
 
 ### 2. Interactive Keyboard Teleoperation
 
-To teleoperate the robot arm in real time using the interactive keyboard interface:
-
 ```bash
 # In Terminal 1: Launch simulation + MoveIt + Servo
 ros2 launch lexium_cobot_l18s_bringup servo.launch.py mode:=mock
 
-# In Terminal 2: Run interactive teleoperation
+# In Terminal 2: Run interactive keyboard teleoperation
 ros2 run lexium_cobot_l18s_bringup teleop_keyboard.py
 ```
 
 Keyboard teleop controls:
 - Press `1` for **Joint Jog Mode**: `q/a`, `w/s`, `e/d`, `r/f`, `t/g`, `y/h` jog joints 1 through 6.
-- Press `2` for **Cartesian Mode**: `Arrow Keys` (X/Y translation), `PageUp/PageDown` (Z translation).
+- Press `2` for **Cartesian Mode**: `Arrow Keys` (X/Y translation), `Shift+Up/Down` or `w/s` (Z translation).
+- Press `0` to **Move to Zero Pose** (`[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]`).
+- Press `9` to **Move to Ready Pose**.
 - `+` / `-`: Increase / decrease velocity.
 - `Space`: Instant halt.
+
+### 3. Cartesian Joystick GUI Teleoperation
+
+For graphical mouse/touch teleoperation with spring-loaded analog joysticks:
+
+```bash
+# In Terminal 1: Launch robot bringup + Servo
+ros2 launch lexium_cobot_l18s_bringup servo.launch.py mode:=mock
+
+# In Terminal 2: Run Cartesian Joystick GUI
+ros2 run lexium_cobot_l18s_bringup teleop_gui.py
+# or
+ros2 launch lexium_cobot_l18s_bringup teleop_gui.launch.py
+```
+
+GUI Features:
+- **Planar XY Joystick**: Spring-loaded 2D joystick controlling $+X/-X$ (Forward/Back) and $+Y/-Y$ (Left/Right) translation.
+- **Vertical Z Slider**: Spring-loaded 1D joystick controlling $+Z/-Z$ (Up/Down) translation.
+- **Orientation Joystick**: Roll ($\omega_x$), Pitch ($\omega_y$), and Yaw ($\omega_z$) rotational control.
+- **Velocity Scaling**: Real-time linear ($0.01-0.50 \text{ m/s}$) and angular ($0.05-1.50 \text{ rad/s}$) sliders.
+- **Frame Selection**: Instant toggle between Base frame (`l_Base_Link002`) and Tool frame (`l_Link_017`).
+- **Pose Presets**: Quick action buttons for **Move to Zero (0.0)** and **Move to Ready**.
+- **Safety Deadman & E-Stop**: Auto-return to zero velocity on pointer release and immediate red Emergency Stop button.
 
 ---
 

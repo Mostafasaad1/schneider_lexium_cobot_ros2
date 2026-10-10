@@ -14,6 +14,7 @@ install(DIRECTORY launch config rviz
 
 install(PROGRAMS
   scripts/teleop_keyboard.py
+  scripts/teleop_gui.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
