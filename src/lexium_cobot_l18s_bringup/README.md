@@ -14,6 +14,56 @@ This package provides a clean, single-entry-point launch architecture to operate
 
 ---
 
+## System Architecture
+
+```mermaid
+flowchart TD
+    subgraph App ["Application Layer"]
+        PNP["lexium_cobot_l18s_pick_and_place<br/>(Table-to-Table Orchestrator)"]
+        GUI["teleop_gui.py / teleop_keyboard.py<br/>(Interactive Joystick & Keyboard)"]
+        PILZ_DEMO["pilz_motion_demo.py<br/>(PTP, LIN, CIRC, Blend Sequences)"]
+    end
+
+    subgraph Motion ["Motion Planning Layer (MoveIt 2)"]
+        MG["MoveGroup Planning Node<br/>(lexium_cobot_l18s_moveit_config)"]
+        OMPL["OMPL Pipeline<br/>(RRTConnect, PRM)"]
+        PILZ["Pilz Industrial Pipeline<br/>(PTP, LIN, CIRC, Blending)"]
+        SERVO["MoveIt Servo<br/>(Real-Time Streaming)"]
+    end
+
+    subgraph Bringup ["Unified Orchestration Layer"]
+        BRINGUP["lexium_cobot_l18s_bringup<br/>(bringup.launch.py)"]
+    end
+
+    subgraph Hardware ["Execution Backends (ros2_control)"]
+        MOCK["Mock Hardware Mode<br/>(Offline / Zero Overhead)"]
+        SIM["Gazebo Harmonic Physics<br/>(gz_ros2_control / ODE)"]
+        REAL["Real Robot Hardware<br/>(Industrial Controller Driver)"]
+    end
+
+    subgraph Description ["Model & Hardware Abstraction"]
+        URDF["lexium_cobot_l18s<br/>(URDF, Xacro, Meshes, ros2_control)"]
+        TOOLS["Tool Framework<br/>(Parallel Jaw & Vacuum Gripper)"]
+    end
+
+    PNP --> MG
+    GUI --> SERVO
+    PILZ_DEMO --> MG
+    MG --> OMPL
+    MG --> PILZ
+    BRINGUP --> MG
+    BRINGUP --> SERVO
+    BRINGUP --> MOCK
+    BRINGUP --> SIM
+    BRINGUP --> REAL
+    MOCK --> URDF
+    SIM --> URDF
+    REAL --> URDF
+    URDF --> TOOLS
+```
+
+---
+
 ## Package Architecture
 
 ```text

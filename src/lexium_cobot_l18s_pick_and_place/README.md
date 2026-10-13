@@ -75,23 +75,45 @@ ros2 run lexium_cobot_l18s_pick_and_place pick_and_place_node.py --cycles 5
 
 ## Pick & Place State Machine Sequence
 
-```text
-[1] INIT & CONNECT      -> Connect to /move_action, /gripper_controller/gripper_cmd, /apply_planning_scene
-[2] SETUP SCENE         -> Publish Pick Table, Place Table, Pedestal & Workpiece to MoveIt Planning Scene
-[3] SAFE READY          -> Move arm to Ready inspection posture
-[4] OPEN GRIPPER        -> Open parallel gripper (40mm stroke)
-[5] PICK APPROACH       -> Move arm to clearance height above Pick Table (+Y=0.40m)
-[6] PICK DESCEND        -> Lower gripper to workpiece grasp height
-[7] GRASP WORKPIECE     -> Close gripper on workpiece (15mm stroke, 75N effort limit)
-[8] ATTACH OBJECT       -> Dynamically attach workpiece in MoveIt Planning Scene (AttachedCollisionObject)
-[9] PICK RETREAT        -> Lift workpiece off Pick Table to clearance height
-[10] TRANSIT            -> Collision-free transit across workcell to Destination Table (-Y=-0.40m)
-[11] PLACE DESCEND      -> Lower workpiece onto Destination Table surface
-[12] RELEASE WORKPIECE  -> Open gripper to release workpiece
-[13] DETACH OBJECT      -> Detach workpiece in Planning Scene at destination coordinates
-[14] PLACE RETREAT      -> Retract arm to destination clearance height
-[15] SAFE HOME/READY    -> Return arm to Safe Ready posture & close gripper
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Node as pick_and_place_node
+    participant Gripper as Gripper Controller
+    participant Arm as MoveGroup (MoveIt 2)
+    participant Scene as Planning Scene Service
+
+    Node->>Gripper: Step 1: Open Gripper (40mm stroke) & Settle
+    Node->>Arm: Step 2: Move Arm to Safe Ready Inspection Posture
+    Node->>Arm: Step 3: Move to Pick Approach Pose (+Y=0.55m, Clearance Z)
+    Node->>Arm: Step 4: Descend Vertically to Grasp Height (tool0 Z=0.396m)
+    Node->>Gripper: Step 5: Close Gripper on Workpiece (100N Effort, Stall Detect)
+    Node->>Scene: Step 6: Attach Workpiece (AttachedCollisionObject)
+    Node->>Arm: Step 7: Lift Workpiece to Pick Approach Clearance Height
+    Node->>Arm: Step 8: Transit Workpiece Across Workcell to Place Approach (-Y=-0.55m)
+    Node->>Arm: Step 9: Lower Workpiece to Destination Table Surface
+    Node->>Gripper: Step 10: Open Gripper to Release Workpiece
+    Node->>Scene: Step 11: Detach Workpiece at Destination Coordinates
+    Node->>Arm: Step 12: Retract Arm to Destination Clearance Height
+    Node->>Arm: Step 13: Return Arm to Safe Ready Posture & Close Gripper
 ```
+
+### Sequence Breakdown
+1. **INIT & CONNECT**: Establishes action client connections to `/move_action`, `/gripper_controller/gripper_cmd`, and `/apply_planning_scene`.
+2. **SETUP SCENE**: Injects Pick Table ($Z_{\text{base}}=0.10\,\text{m}$), Place Table ($Z_{\text{base}}=0.10\,\text{m}$), and Workpiece ($Z_{\text{base}}=0.29\,\text{m}$) into MoveIt Planning Scene with Allowed Collision Matrix (ACM) permissions.
+3. **SAFE READY**: Commands arm to central inspection posture facing between both tables.
+4. **OPEN GRIPPER**: Commands $40\,\text{mm}$ full parallel stroke.
+5. **PICK APPROACH**: Translates horizontally above the Pick Table at $+Y=0.55\,\text{m}$, clearance $Z_{\text{tool0}}=0.56\,\text{m}$.
+6. **PICK DESCEND**: Straight vertical descent normal to table surface until `tool0` reaches $Z_{\text{base}}=0.396\,\text{m}$. Fingertips clear table by $+22.0\,\text{mm}$ and rubber contact pads flank the workpiece center of mass.
+7. **GRASP WORKPIECE**: Actuates gripper with $100\,\text{N}$ effort. Detects physical contact via `stalled: true` and holds firmly.
+8. **ATTACH OBJECT**: Registers workpiece as `AttachedCollisionObject` on `tool0` in MoveIt Planning Scene.
+9. **PICK RETREAT**: Lifts workpiece vertically back to clearance height ($Z_{\text{tool0}}=0.56\,\text{m}$).
+10. **TRANSIT**: Collision-free motion across workcell to Destination Table approach ($-Y=-0.55\,\text{m}$).
+11. **PLACE DESCEND**: Lowers workpiece onto destination table surface ($Z_{\text{tool0}}=0.396\,\text{m}$).
+12. **RELEASE WORKPIECE**: Opens gripper fully ($40\,\text{mm}$).
+13. **DETACH OBJECT**: Detaches workpiece in Planning Scene and adds it as a static obstacle at destination coordinates.
+14. **PLACE RETREAT**: Retracts arm vertically to clearance height.
+15. **SAFE HOME/READY**: Returns arm to Safe Ready posture and closes gripper for standby.
 
 ---
 
