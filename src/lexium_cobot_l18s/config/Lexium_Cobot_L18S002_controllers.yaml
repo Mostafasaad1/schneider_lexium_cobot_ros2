@@ -34,5 +34,9 @@ arm_controller:
 gripper_controller:
   ros__parameters:
     joint: gripper_finger_left_joint
-    goal_tolerance: 0.005
+    goal_tolerance: 0.003       # Tighter tolerance — gripper now tracks aggressively
+    max_effort: 100.0           # Maximum effort (N) the controller is allowed to command
     action_monitor_rate: 20.0
+    allow_stalling: true
+    stall_timeout: 0.5          # Faster stall detection now that Gazebo responds quickly
+    stall_velocity_threshold: 0.001  # Tighter: declare stall if velocity < 1mm/s

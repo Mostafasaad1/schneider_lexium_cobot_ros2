@@ -1,0 +1,38 @@
+# Lexium Cobot L18S Pick & Place Motion Parameters
+pick_and_place_node:
+  ros__parameters:
+    planning_group: "lexium_arm"
+    pipeline_id: "pilz_industrial_motion_planner" # or "ompl"
+    default_planner: "PTP"
+    linear_planner: "LIN"
+    base_frame: "l_Base_Link002"
+    tcp_frame: "tool0"
+
+    # Velocity and Acceleration scaling
+    velocity_scaling: 0.35
+    acceleration_scaling: 0.35
+    approach_velocity_scaling: 0.20
+    approach_acceleration_scaling: 0.20
+
+    # Gripper strokes (meters) & forces (Newtons)
+    gripper_open_position: 0.040
+    gripper_grasp_position: -0.008 # Closes deep into clamp zone (~14mm jaw gap)
+    gripper_open_effort: 40.0
+    gripper_grasp_effort: 100.0
+
+    # Key Joint Waypoints (Rad)
+    home_posture: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    ready_posture: [-1.5708, 0.4500, -1.0500, 0.6000, 1.5708, 0.0000]
+
+    # Pre-calculated reachable Cartesian approach postures (Pick and Place)
+    # Pick side (+Y = 0.55m, Tool points strictly vertical down, grasp height Z=0.396m wrt base):
+    # Finger tips at Z=0.272m (+22.0mm safe clearance above table surface at Z=0.250m)
+    # Rubber pad center aligns with workpiece center of mass at Z=0.290m (Z_world = 0.340m)
+    pick_approach_joints: [-0.9042, 0.3632, -1.0971, 0.1105, 1.5708, -0.1013]
+    pick_grasp_joints:    [-0.9042, 0.3932, -1.4672, -0.2896, 1.5708, -0.1012]
+
+    # Place side (-Y = -0.55m, Tool points strictly vertical down, release height Z=0.396m wrt base):
+    # Finger tips at Z=0.272m (+22.0mm safe clearance above table surface at Z=0.250m)
+    place_approach_joints: [0.9042, -0.3632, 1.0971, -0.1105, -1.5708, 0.1013]
+    place_release_joints:  [0.9042, -0.3932, 1.4672, 0.2896, -1.5708, 0.1012]
+

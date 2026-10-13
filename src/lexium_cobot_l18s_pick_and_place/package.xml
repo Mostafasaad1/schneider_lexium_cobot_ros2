@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>lexium_cobot_l18s_pick_and_place</name>
+  <version>0.1.0</version>
+  <description>Complete industrial table-to-table pick-and-place application for the Schneider Electric Lexium Cobot L18S.</description>
+  <maintainer email="mox@todo.todo">Schneider Electric Robotics User</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>shape_msgs</exec_depend>
+  <exec_depend>moveit_msgs</exec_depend>
+  <exec_depend>control_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>lexium_cobot_l18s</exec_depend>
+  <exec_depend>lexium_cobot_l18s_bringup</exec_depend>
+  <exec_depend>lexium_cobot_l18s_moveit_config</exec_depend>
+  <exec_depend>pilz_industrial_motion_planner</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
