@@ -4,7 +4,7 @@
     <xacro:arg name="use_mock_hardware" default="false"/>
     <xacro:arg name="use_sim" default="true"/>
     <xacro:arg name="controllers_file" default=""/>
-    <xacro:arg name="tool_type" default="none"/>
+    <xacro:arg name="tool_type" default="gripper"/>
 
     <!-- Base Robot Description -->
     <xacro:include filename="Lexium_Cobot_L18S002.urdf"/>

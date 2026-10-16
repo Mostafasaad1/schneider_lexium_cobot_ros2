@@ -1,7 +1,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, TimerAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -9,7 +9,11 @@ from launch_ros.actions import Node
 from moveit_configs_utils import MoveItConfigsBuilder
 
 
-def generate_launch_description():
+def launch_setup(context, *args, **kwargs):
+    tool_type = LaunchConfiguration("tool_type").perform(context).lower()
+    rviz_flag_str = LaunchConfiguration("rviz").perform(context).lower()
+    use_rviz = rviz_flag_str in ["true", "1", "yes"]
+
     moveit_config = (
         MoveItConfigsBuilder(
             "Lexium_Cobot_L18S002", package_name="lexium_cobot_l18s_moveit_config"
@@ -19,7 +23,12 @@ def generate_launch_description():
                 "use_ros2_control": "true",
                 "use_mock_hardware": "false",
                 "use_sim": "true",
+                "tool_type": tool_type,
             }
+        )
+        .robot_description_semantic(
+            file_path="config/Lexium_Cobot_L18S002.srdf.xacro",
+            mappings={"tool_type": tool_type},
         )
         .pilz_cartesian_limits(file_path="config/pilz_cartesian_limits.yaml")
         .planning_pipelines(
@@ -35,13 +44,6 @@ def generate_launch_description():
         "moveit.rviz",
     )
 
-    rviz_arg = DeclareLaunchArgument(
-        "rviz",
-        default_value="true",
-        description="Whether to launch MoveIt RViz2 interface",
-    )
-    rviz_flag = LaunchConfiguration("rviz")
-
     # Gazebo Simulation launch (disable raw URDF display in gazebo.launch.py)
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -51,7 +53,10 @@ def generate_launch_description():
                 "gazebo.launch.py",
             )
         ]),
-        launch_arguments={"use_rviz": "false"}.items(),
+        launch_arguments={
+            "use_rviz": "false",
+            "tool_type": tool_type,
+        }.items(),
     )
 
     # Move Group Node (delayed to allow Gazebo & controllers to boot)
@@ -77,7 +82,7 @@ def generate_launch_description():
         name="rviz2",
         output="screen",
         arguments=["-d", rviz_config_file],
-        condition=IfCondition(rviz_flag),
+        condition=IfCondition(str(use_rviz).lower()),
         parameters=[
             moveit_config.robot_description,
             moveit_config.robot_description_semantic,
@@ -88,9 +93,24 @@ def generate_launch_description():
         ],
     )
 
-    return LaunchDescription([
-        rviz_arg,
+    return [
         gazebo_launch,
         delayed_move_group,
         rviz_node,
+    ]
+
+
+def generate_launch_description():
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            "tool_type",
+            default_value="gripper",
+            description="End-effector tool attachment: 'none', 'gripper', or 'vacuum'",
+        ),
+        DeclareLaunchArgument(
+            "rviz",
+            default_value="true",
+            description="Whether to launch MoveIt RViz2 interface",
+        ),
+        OpaqueFunction(function=launch_setup),
     ])

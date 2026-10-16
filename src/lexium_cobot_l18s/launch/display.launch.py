@@ -20,6 +20,12 @@ def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_ros2_control = LaunchConfiguration('use_ros2_control')
+    tool_type = LaunchConfiguration('tool_type')
+    tool_type_arg = DeclareLaunchArgument(
+        'tool_type',
+        default_value='gripper',
+        description="End-effector tool attachment: 'none', 'gripper', or 'vacuum'"
+    )
 
     robot_state_publisher_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -31,7 +37,8 @@ def generate_launch_description():
         ]),
         launch_arguments=dict(
             use_sim_time=use_sim_time,
-            use_ros2_control=use_ros2_control
+            use_ros2_control=use_ros2_control,
+            tool_type=tool_type,
         ).items(),
     )
 
@@ -91,6 +98,7 @@ def generate_launch_description():
             default_value='false',
             description='Include ros2_control configuration in lexium_cobot_l18s'
         ),
+        tool_type_arg,
         joint_state_publisher_node,
         joint_state_publisher_gui_node,
         robot_state_publisher_node,

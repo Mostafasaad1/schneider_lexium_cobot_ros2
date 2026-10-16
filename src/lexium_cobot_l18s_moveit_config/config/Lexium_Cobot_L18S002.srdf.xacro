@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="Lexium_Cobot_L18S002">
+  <xacro:arg name="tool_type" default="gripper"/>
+  <xacro:property name="tt" value="$(arg tool_type)"/>
+
+  <!-- GROUPS: Representation Of A Set Of Joints And Links -->
+  <group name="lexium_arm">
+    <chain base_link="l_Base_Link002" tip_link="tool0"/>
+  </group>
+
+  <!-- Gripper Planning Group & End Effector (only when tool_type == gripper) -->
+  <xacro:if value="${tt == 'gripper'}">
+    <group name="gripper">
+      <joint name="gripper_finger_left_joint"/>
+      <joint name="gripper_finger_right_joint"/>
+      <joint name="gripper_base_joint"/>
+      <joint name="gripper_tcp_joint"/>
+    </group>
+
+    <end_effector name="gripper" parent_link="tool0" group="gripper" parent_group="lexium_arm"/>
+
+    <group_state name="open" group="gripper">
+      <joint name="gripper_finger_left_joint" value="0.040"/>
+    </group_state>
+
+    <group_state name="close" group="gripper">
+      <joint name="gripper_finger_left_joint" value="0.0"/>
+    </group_state>
+  </xacro:if>
+
+  <!-- GROUP STATES: Purpose: Define named poses for the group -->
+  <group_state name="home" group="lexium_arm">
+    <joint name="l_Base_Link002__to__l_Link_012" value="0.0"/>
+    <joint name="l_Link_012__to__l_Link_013" value="0.0"/>
+    <joint name="l_Link_013__to__l_Link_014" value="0.0"/>
+    <joint name="l_Link_014__to__l_Link_015" value="0.0"/>
+    <joint name="l_Link_015__to__l_Link_016" value="0.0"/>
+    <joint name="l_Link_016__to__l_Link_017" value="0.0"/>
+  </group_state>
+
+  <group_state name="ready" group="lexium_arm">
+    <joint name="l_Base_Link002__to__l_Link_012" value="0.0"/>
+    <joint name="l_Link_012__to__l_Link_013" value="-0.785398"/>
+    <joint name="l_Link_013__to__l_Link_014" value="1.570796"/>
+    <joint name="l_Link_014__to__l_Link_015" value="-0.785398"/>
+    <joint name="l_Link_015__to__l_Link_016" value="1.570796"/>
+    <joint name="l_Link_016__to__l_Link_017" value="0.0"/>
+  </group_state>
+
+  <!-- VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference -->
+  <virtual_joint name="virtual_joint" type="fixed" parent_frame="world" child_link="l_Base_Link002"/>
+
+  <!-- DISABLE COLLISIONS: Arm Links -->
+  <disable_collisions link1="l_Base_Link002" link2="l_Link_012" reason="Adjacent"/>
+  <disable_collisions link1="l_Base_Link002" link2="world" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_012" link2="l_Link_013" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_013" link2="l_Link_014" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_014" link2="l_Link_015" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_015" link2="l_Link_016" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_016" link2="l_Link_017" reason="Adjacent"/>
+  <disable_collisions link1="l_Link_017" link2="tool0" reason="Adjacent"/>
+  <disable_collisions link1="l_Base_Link002" link2="l_Link_013" reason="Never"/>
+  <disable_collisions link1="l_Link_012" link2="l_Link_014" reason="Never"/>
+  <disable_collisions link1="l_Link_014" link2="l_Link_016" reason="Never"/>
+  <disable_collisions link1="l_Link_014" link2="l_Link_017" reason="Never"/>
+  <disable_collisions link1="l_Link_014" link2="tool0" reason="Never"/>
+  <disable_collisions link1="l_Link_015" link2="l_Link_017" reason="Never"/>
+  <disable_collisions link1="l_Link_015" link2="tool0" reason="Never"/>
+  <disable_collisions link1="l_Link_016" link2="tool0" reason="Never"/>
+
+  <!-- DISABLE COLLISIONS: Gripper Links -->
+  <xacro:if value="${tt == 'gripper'}">
+    <disable_collisions link1="gripper_base_link" link2="l_Link_017" reason="Adjacent"/>
+    <disable_collisions link1="gripper_base_link" link2="tool0" reason="Adjacent"/>
+    <disable_collisions link1="gripper_base_link" link2="l_Link_016" reason="Never"/>
+    <disable_collisions link1="gripper_base_link" link2="l_Link_015" reason="Never"/>
+    <disable_collisions link1="gripper_base_link" link2="gripper_finger_left" reason="Adjacent"/>
+    <disable_collisions link1="gripper_base_link" link2="gripper_finger_right" reason="Adjacent"/>
+    <disable_collisions link1="gripper_finger_left" link2="gripper_finger_right" reason="Never"/>
+    <disable_collisions link1="gripper_finger_left" link2="tool0" reason="Never"/>
+    <disable_collisions link1="gripper_finger_left" link2="l_Link_017" reason="Never"/>
+    <disable_collisions link1="gripper_finger_right" link2="tool0" reason="Never"/>
+    <disable_collisions link1="gripper_finger_right" link2="l_Link_017" reason="Never"/>
+  </xacro:if>
+
+  <!-- DISABLE COLLISIONS: Vacuum Links -->
+  <xacro:if value="${tt == 'vacuum'}">
+    <disable_collisions link1="vacuum_base_link" link2="l_Link_017" reason="Adjacent"/>
+    <disable_collisions link1="vacuum_base_link" link2="tool0" reason="Adjacent"/>
+    <disable_collisions link1="vacuum_base_link" link2="l_Link_016" reason="Never"/>
+    <disable_collisions link1="vacuum_base_link" link2="vacuum_suction_cup" reason="Adjacent"/>
+  </xacro:if>
+</robot>

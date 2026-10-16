@@ -28,6 +28,12 @@ def generate_launch_description():
         default_value='false',
         description='Use mock hardware for ros2_control'
     )
+    tool_type = LaunchConfiguration('tool_type')
+    tool_type_arg = DeclareLaunchArgument(
+        'tool_type',
+        default_value='gripper',
+        description="End-effector tool attachment: 'none', 'gripper', or 'vacuum'"
+    )
 
     xacro_cmd = Command([
         'xacro ',
@@ -38,6 +44,8 @@ def generate_launch_description():
         use_mock_hardware,
         ' controllers_file:=',
         LaunchConfiguration('controllers_file'),
+        ' tool_type:=',
+        tool_type,
     ]) 
 
     robot_state_publisher_node = launch_ros.actions.Node(
@@ -66,5 +74,6 @@ def generate_launch_description():
         use_sim_time_launch_arg,
         use_ros2_control_arg,
         use_mock_hardware_arg,
+        tool_type_arg,
         robot_state_publisher_node,
     ])

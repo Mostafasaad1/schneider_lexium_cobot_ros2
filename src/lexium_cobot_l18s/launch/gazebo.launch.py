@@ -129,6 +129,25 @@ def generate_launch_description():
         actions=[arm_controller_spawner],
     )
 
+    tool_type = LaunchConfiguration('tool_type')
+    tool_type_arg = DeclareLaunchArgument(
+        'tool_type',
+        default_value='gripper',
+        description="End-effector tool attachment: 'none', 'gripper', or 'vacuum'"
+    )
+
+    gripper_controller_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['gripper_controller', '--controller-manager', '/controller_manager'],
+        output='screen',
+        condition=IfCondition(PythonExpression(['"', use_ros2_control, '" == "true" and "', tool_type, '" == "gripper"'])),
+    )
+    delayed_gripper_controller = TimerAction(
+        period=8.5,
+        actions=[gripper_controller_spawner],
+    )
+
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_sim_time_launch_arg = DeclareLaunchArgument('use_sim_time', default_value='true')
     use_rviz = LaunchConfiguration('use_rviz')
@@ -149,7 +168,8 @@ def generate_launch_description():
             condition=UnlessCondition(use_rviz),  # rviz launch includes rsp.
             launch_arguments=dict(
                 use_sim_time=use_sim_time,
-                use_ros2_control=use_ros2_control
+                use_ros2_control=use_ros2_control,
+                tool_type=tool_type,
             ).items(),
     )
 
@@ -164,7 +184,8 @@ def generate_launch_description():
         condition=IfCondition(use_rviz),
         launch_arguments=dict(
             use_sim_time=use_sim_time,
-            use_ros2_control=use_ros2_control
+            use_ros2_control=use_ros2_control,
+            tool_type=tool_type,
         ).items(),
     )
 
@@ -221,12 +242,14 @@ def generate_launch_description():
         gazebo_world_launch_arg,
         gui_config_launch_arg,
         use_ros2_control_arg,
+        tool_type_arg,
         robot_state_publisher,
         rviz,
         gazebo,
         spawn,
         delayed_joint_state_broadcaster,
         delayed_arm_controller,
+        delayed_gripper_controller,
         gz_bridge_parameter,
         (gz_bridge_camera if [] else gz_bridge_camera_dummy),
         offboard_control,
