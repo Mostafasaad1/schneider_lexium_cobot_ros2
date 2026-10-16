@@ -12,6 +12,9 @@ https://github.com/user-attachments/assets/b81ddbc6-6508-448d-9484-2ec695c9036f
 
 > **Autonomous Pick-and-Place Demonstration**: Live Gazebo Harmonic physics simulation featuring dynamic collision object tracking, vertical descent grasp with physical stall detection, table-to-table transit, and placement.
 
+> [!NOTE]
+> **Simulation Scope**: This project was developed, tested, and validated entirely in **simulation** (Gazebo Harmonic physics and offline `ros2_control` mock execution). It has **not** been connected to or operated on physical robot hardware.
+
 ---
 
 ## Table of Contents
@@ -46,10 +49,10 @@ The suite is engineered around a unified, modular architecture separating model 
 | :--- | :--- | :--- |
 | **Application Layer** | [`lexium_cobot_l18s_pick_and_place`](src/lexium_cobot_l18s_pick_and_place), [`lexium_cobot_l18s_bringup`](src/lexium_cobot_l18s_bringup) | Table-to-table pick & place orchestrator, Cartesian Joystick GUI, keyboard teleop, Pilz demos |
 | **Motion Planning Layer** | [`lexium_cobot_l18s_moveit_config`](src/lexium_cobot_l18s_moveit_config) | MoveGroup planning server, OMPL pipeline, Pilz Industrial (PTP/LIN/CIRC/Blend), MoveIt Servo |
-| **Bringup & Execution** | [`lexium_cobot_l18s_bringup`](src/lexium_cobot_l18s_bringup) | Unified orchestration across Mock Hardware (`mode:=mock`), Gazebo Simulation (`mode:=sim`), and Real Hardware (`mode:=real`) |
+| **Bringup & Execution** | [`lexium_cobot_l18s_bringup`](src/lexium_cobot_l18s_bringup) | Unified orchestration across Mock Hardware (`mode:=mock`), Gazebo Simulation (`mode:=sim`), and Real Hardware hooks (`mode:=real`) |
 | **Model & Tooling** | [`lexium_cobot_l18s`](src/lexium_cobot_l18s) | 6-DOF URDF/Xacro, joint limits, meshes, modular tools (Parallel Jaw & Vacuum Gripper), `ros2_control` |
 
-*(Detailed system architecture flowchart available in [`lexium_cobot_l18s_bringup/README.md`](src/lexium_cobot_l18s_bringup/README.md#system-architecture))*
+*(Detailed system architecture flowchart available in [`lexium_cobot_l18s_bringup/README.md`](src/lexium_cobot_l18s_bringup/README.md#system-architecture). Note: All testing and validation are performed in simulation; no physical robot hardware is connected).*
 
 ---
 

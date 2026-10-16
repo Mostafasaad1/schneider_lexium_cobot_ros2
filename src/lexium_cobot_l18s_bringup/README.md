@@ -10,7 +10,10 @@ This package provides a clean, single-entry-point launch architecture to operate
 
 1. **Mock Hardware (`mode:=mock`)**: Fast offline execution with simulated kinematics and zero dependencies on physics engines. Ideal for CI/CD, motion planning testing, and application logic development.
 2. **Gazebo Harmonic (`mode:=sim`)**: Full physics simulation with gravity, inertial dynamics, contact modeling, and `gz_ros2_control` hardware interface.
-3. **Real Hardware (`mode:=real`)**: Physical robot communication interface with `ros2_control` hardware driver integration.
+3. **Real Hardware Hook (`mode:=real`)**: Launch architecture for physical hardware driver integration.
+
+> [!NOTE]
+> **Simulation Scope**: This project is developed, tested, and validated strictly in **simulation** (Gazebo Harmonic and offline mock hardware). No physical robot hardware is connected.
 
 ---
 
