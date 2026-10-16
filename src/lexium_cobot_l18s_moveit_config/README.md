@@ -14,6 +14,10 @@ This package configures the complete MoveIt 2 motion planning framework for the 
 - **Real-Time Jogging with MoveIt Servo**: Low-latency Cartesian Twist and Joint Jog streaming for joystick teleoperation.
 - **Cartesian & Kinematic Limits**: Strict acceleration, jerk, and velocity limits configured for safe human-robot collaboration.
 
+https://github.com/user-attachments/assets/6361c3aa-ce23-4cde-8aae-f646ef4732f5
+
+> **Pilz Industrial Motion Execution**: Trajectory execution demonstrating deterministic linear Cartesian motions (LIN) and circular arcs (CIRC) with trajectory blending.
+
 ---
 
 ## Package Structure
@@ -24,7 +28,7 @@ lexium_cobot_l18s_moveit_config/
 ├── package.xml
 ├── README.md
 ├── config/
-│   ├── Lexium_Cobot_L18S002.srdf               # Semantic Robot Description (SRDF)
+│   ├── Lexium_Cobot_L18S002.srdf.xacro         # Dynamic Semantic Robot Description (SRDF)
 │   ├── kinematics.yaml                         # KDL / pick_ik kinematics solver parameters
 │   ├── ompl_planning.yaml                      # OMPL algorithm parameters
 │   ├── pilz_industrial_motion_planner.yaml     # Pilz motion planning configuration
@@ -46,9 +50,14 @@ lexium_cobot_l18s_moveit_config/
 
 ### 1. Interactive MoveIt 2 Demonstration (`demo.launch.py`)
 Launches MoveGroup with fake/mock controllers and the full RViz2 Motion Planning display with interactive 6-DOF Cartesian drag markers:
+
+<p align="center">
+  <img width="650" alt="MoveIt Trajectory Trail Visualization in RViz" src="https://github.com/user-attachments/assets/eb38aa3e-282e-45f6-8636-e1e4ed54a976" />
+</p>
+
 ```bash
 # Bare arm flange
-ros2 launch lexium_cobot_l18s_moveit_config demo.launch.py
+ros2 launch lexium_cobot_l18s_moveit_config demo.launch.py tool_type:=none
 
 # With Parallel Gripper attached
 ros2 launch lexium_cobot_l18s_moveit_config demo.launch.py tool_type:=gripper

@@ -142,6 +142,8 @@ ros2 run lexium_cobot_l18s_bringup gripper_demo.py
 
 The Lexium Cobot L18S is fully configured with the **Pilz Industrial Motion Planner** (`pilz_industrial_motion_planner`) pipeline alongside OMPL, loaded by default in MoveGroup.
 
+https://github.com/user-attachments/assets/6361c3aa-ce23-4cde-8aae-f646ef4732f5
+
 Features supported:
 - **PTP (Point-to-Point)**: Time-optimal joint-space and Cartesian-space trajectories adhering to velocity & acceleration limits.
 - **LIN (Linear Motion)**: Deterministic Cartesian straight-line trajectories with synchronized TCP translation and rotation.
@@ -178,6 +180,8 @@ Keyboard teleop controls:
 ### 5. Cartesian Joystick GUI Teleoperation
 
 For graphical mouse/touch teleoperation with spring-loaded analog joysticks:
+
+https://github.com/user-attachments/assets/77d3bd26-471f-493c-81c3-08ace696d276
 
 ```bash
 # Launch robot bringup + Servo + Cartesian Joystick GUI in one command:

@@ -13,6 +13,10 @@ This package provides an end-to-end industrial pick-and-place workcell with:
 - **Robust Motion State Machine**: 13-stage deterministic pick, lift, transit, place, release, and safe return cycle with Pilz Industrial Motion Planner / OMPL.
 - **Multi-Backend Execution**: Seamless execution in both **Mock Hardware** (`mode:=mock`) and **Gazebo Harmonic Simulation** (`mode:=sim`).
 
+https://github.com/user-attachments/assets/b81ddbc6-6508-448d-9484-2ec695c9036f
+
+> **Autonomous Pick-and-Place Demonstration**: Live Gazebo Harmonic physics simulation featuring dynamic collision object tracking, vertical descent grasp with physical stall detection, table-to-table transit, and placement.
+
 ---
 
 ## Package Structure

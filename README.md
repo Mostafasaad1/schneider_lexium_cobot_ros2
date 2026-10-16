@@ -8,6 +8,10 @@
 
 Comprehensive ROS 2 software stack for the **Schneider Electric Lexium Cobot L18S** 6-DOF industrial collaborative robot. Features physics simulation in Gazebo Harmonic, high-performance offline mock execution, advanced MoveIt 2 motion planning (OMPL & Pilz Industrial Motion Planner with PTP, LIN, CIRC, and trajectory blending), real-time MoveIt Servo streaming, interactive teleoperation GUIs, modular end-effector tooling (parallel jaw and vacuum gripper), and a fully autonomous Table-to-Table Industrial Pick-and-Place workcell.
 
+https://github.com/user-attachments/assets/b81ddbc6-6508-448d-9484-2ec695c9036f
+
+> **Autonomous Pick-and-Place Demonstration**: Live Gazebo Harmonic physics simulation featuring dynamic collision object tracking, vertical descent grasp with physical stall detection, table-to-table transit, and placement.
+
 ---
 
 ## Table of Contents
@@ -132,10 +136,19 @@ Provides kinematic specifications, inertia tensors, collision bounding boxes, 3D
   - `tool_type:=none`: Bare ISO tool flange (`tool0` / `tcp_link`).
 - **Gazebo Harmonic Ready**: Tuned inertial properties, ODE contact surfaces, joint damping, friction, and `gz_ros2_control::GazeboSimROS2ControlPlugin` integration.
 
+| Bare Flange (`tool_type:=none`) | Parallel Jaw Gripper (`tool_type:=gripper`) | Vacuum Suction Tool (`tool_type:=vacuum`) |
+| :---: | :---: | :---: |
+| <img width="260" alt="Gazebo Bare Flange" src="https://github.com/user-attachments/assets/e73106a6-f2a6-4d17-84d3-6606b19013d9" /> | <img width="260" alt="Gazebo Parallel Gripper" src="https://github.com/user-attachments/assets/a0408b53-bc13-463f-9bdf-4e55041a670c" /> | <img width="260" alt="Gazebo Vacuum Tool" src="https://github.com/user-attachments/assets/f6b58c3a-9539-42d7-84f6-bcc5c2502c0b" /> |
+
 ### Launch Commands
 
 #### 1. Inspect URDF & Joints in RViz with Sliders (`display.launch.py`)
 Launches `robot_state_publisher`, `joint_state_publisher_gui`, and RViz2 to manually articulate every robot joint and verify tool attachments:
+
+<p align="center">
+  <img width="800" alt="Lexium Cobot L18S in RViz2" src="https://github.com/user-attachments/assets/9e933355-73cc-41a9-8b50-b22215f76cd6" />
+</p>
+
 ```bash
 # Bare arm flange
 ros2 launch lexium_cobot_l18s display.launch.py
@@ -184,6 +197,11 @@ Provides complete MoveIt 2 semantic descriptions, collision matrices, kinematics
 
 #### 1. Interactive MoveIt 2 Demonstration (`demo.launch.py`)
 Launches MoveGroup with fake/mock controllers and the full RViz2 Motion Planning display with interactive 6-DOF Cartesian drag markers:
+
+<p align="center">
+  <img width="650" alt="MoveIt Trajectory Trail Visualization in RViz" src="https://github.com/user-attachments/assets/eb38aa3e-282e-45f6-8636-e1e4ed54a976" />
+</p>
+
 ```bash
 # Bare arm
 ros2 launch lexium_cobot_l18s_moveit_config demo.launch.py
@@ -269,6 +287,9 @@ ros2 launch lexium_cobot_l18s_bringup teleop_gui.launch.py mode:=mock tool_type:
 
 #### Cartesian Joystick GUI (`teleop_gui.py`)
 To run the Joystick GUI against an already running bringup stack:
+
+https://github.com/user-attachments/assets/77d3bd26-471f-493c-81c3-08ace696d276
+
 ```bash
 # In Terminal 1: Launch bringup with servo enabled
 ros2 launch lexium_cobot_l18s_bringup servo.launch.py mode:=sim tool_type:=gripper
@@ -297,6 +318,9 @@ ros2 run lexium_cobot_l18s_bringup teleop_keyboard.py
 
 #### Pilz Industrial Motion Demo (`pilz_motion_demo.py`)
 Verifies deterministic PTP, LIN, CIRC, and blended sequence trajectory generation:
+
+https://github.com/user-attachments/assets/6361c3aa-ce23-4cde-8aae-f646ef4732f5
+
 ```bash
 ros2 run lexium_cobot_l18s_bringup pilz_motion_demo.py
 ```
@@ -312,6 +336,8 @@ ros2 run lexium_cobot_l18s_bringup gripper_demo.py
 ## Package 4: `lexium_cobot_l18s_pick_and_place` (Industrial Workcell Application)
 
 A complete industrial Pick-and-Place workcell application designed for automated Table-to-Table material handling between symmetric workbenches.
+
+https://github.com/user-attachments/assets/b81ddbc6-6508-448d-9484-2ec695c9036f
 
 ### Features
 
